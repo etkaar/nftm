@@ -1,5 +1,5 @@
 # nftables-managing-script
-Lightweight POSIX compatible (/bin/dash) script to manage a nftables based firewall with periodically and atomically updated whitelists and blacklists.
+Lightweight script (/bin/dash) to manage a nftables based firewall with periodically and atomically updated whitelists and blacklists.
 
 Tested on Debian 10 (Buster).
 
