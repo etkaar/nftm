@@ -1,7 +1,7 @@
 # nftables-managing-script
 Lightweight POSIX compatible (/bin/dash) script to manage a nftables based firewall with periodically and atomically updated whitelists and blacklists.
 
-Last updated in March 2021 and tested on Debian 10 (Buster).
+Tested on Debian 10 (Buster).
 
 # Important
 In the default configuration, the firewall will **drop any incoming traffic** which is not whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` or the `conf/additional_rules.txt`.
