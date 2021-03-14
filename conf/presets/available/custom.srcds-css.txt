@@ -1,0 +1,6 @@
+# Allow traffic for Counter-Strike: Source
+add rule inet filter default_input udp dport 27000-27015 counter accept comment "Gameserver: CSS"
+add rule inet filter default_input tcp dport 27020-27039 counter accept comment "Gameserver: CSS"
+
+add rule inet filter default_input udp dport 1200 counter accept comment "Gameserver: CSS (HLTV)"
+add rule inet filter default_input udp dport 27020 counter accept comment "Gameserver: CSS (HLTV)"

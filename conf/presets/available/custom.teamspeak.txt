@@ -1,0 +1,5 @@
+# Allow traffic for TeamSpeak
+add rule inet filter default_input udp dport 9987 counter accept comment "TeamSpeak (default_voice_port)"
+add rule inet filter default_input tcp dport 30033 counter accept comment "TeamSpeak (filetransfer_port)"
+
+#add rule inet filter default_input tcp dport 10022 counter accept comment "TeamSpeak (query_ssh_port)"

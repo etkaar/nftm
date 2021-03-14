@@ -1,0 +1,2 @@
+# Allow traffic for Vintagestory
+add rule inet filter default_input tcp dport 42420 counter accept comment "Gameserver: Vintage Story"

@@ -1,0 +1,2 @@
+# Allow incoming emails on default port using SMTP
+add rule inet filter default_input tcp dport 25 counter accept comment "SMTP: Public; Incoming emails (MTA)"

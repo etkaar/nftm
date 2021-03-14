@@ -1,0 +1,77 @@
+# IPv4 and IPv6
+table inet filter {
+
+	# Whitelist
+	set whitelist_ipv4_tcp {
+		type inet_service . ipv4_addr
+	}
+	
+	set whitelist_ipv4_udp {
+		type inet_service . ipv4_addr
+	}
+	
+	set whitelist_ipv6_tcp {
+		type inet_service . ipv6_addr
+	}
+	
+	set whitelist_ipv6_udp {
+		type inet_service . ipv6_addr
+	}
+	
+	# Blacklist
+	set blacklist_ipv4 {
+		type ipv4_addr; flags interval;
+	}
+	
+	set blacklist_ipv6 {
+		type ipv6_addr; flags interval;
+	}
+	
+	chain default_input {
+		
+		# First, drop all incoming traffic
+		type filter hook input priority 0; policy drop;
+		
+		# Blacklist (no further checks when dropped here)
+		ip saddr @blacklist_ipv4 drop
+		ip6 saddr @blacklist_ipv6 drop
+
+		# Allow packets to established/related connections
+		ct state established,related accept
+
+		# Drop invalid connections
+		ct state invalid drop
+
+		# Allow loopback interface
+		iifname lo accept
+
+		# Allow ICMPv4: Ping requests | Error messages | Router selection messages
+		ip protocol icmp icmp type {
+			echo-request, echo-reply, destination-unreachable, time-exceeded, parameter-problem, router-solicitation, router-advertisement
+		} accept
+		
+		# Allow ICMPv6 traffic (https://tools.ietf.org/html/rfc4890#page-18)
+		ip6 nexthdr icmpv6 icmpv6 type {
+			destination-unreachable, packet-too-big, time-exceeded, echo-request, parameter-problem, echo-reply, nd-router-solicit, nd-router-advert, nd-neighbor-solicit, nd-neighbor-advert, ind-neighbor-solicit, ind-neighbor-advert
+		} accept
+		
+		# Whitelists
+		meta nfproto ipv4 tcp dport . ip saddr @whitelist_ipv4_tcp accept
+		meta nfproto ipv4 udp dport . ip saddr @whitelist_ipv4_udp accept
+		meta nfproto ipv6 tcp dport . ip6 saddr @whitelist_ipv6_tcp accept
+		meta nfproto ipv6 udp dport . ip6 saddr @whitelist_ipv6_udp accept
+		
+	}
+	
+	chain default_forward { 		
+		type filter hook forward priority 0; policy drop;
+	}
+	
+	chain default_output {
+		type filter hook output priority 0; policy accept;
+
+		# Allow loopback interface
+		oifname lo accept
+	}
+	
+}

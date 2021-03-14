@@ -1,0 +1,79 @@
+# IPv4
+table inet filter {
+
+	# Whitelist
+	set whitelist_ipv4_tcp {
+		type inet_service . ipv4_addr
+	}
+	
+	set whitelist_ipv4_udp {
+		type inet_service . ipv4_addr
+	}
+	
+	# Blacklist
+	set blacklist_ipv4 {
+		type ipv4_addr; flags interval;
+	}
+	
+	chain default_input {
+		
+		# First, drop all incoming traffic
+		type filter hook input priority 1; policy drop;
+		
+		# Blacklist (no further checks when dropped here)
+		ip saddr @blacklist_ipv4 drop
+
+		# Allow packets to established/related connections
+		ct state established,related accept
+
+		# Drop invalid connections
+		ct state invalid drop
+
+		# Allow loopback interface
+		iifname lo accept
+
+		# Allow ICMPv4: Ping requests | Error messages | Router selection messages
+		ip protocol icmp icmp type {
+			echo-request, echo-reply, destination-unreachable, time-exceeded, parameter-problem, router-solicitation, router-advertisement
+		} accept
+		
+		# Whitelist
+		meta nfproto ipv4 tcp dport . ip saddr @whitelist_ipv4_tcp accept
+		meta nfproto ipv4 udp dport . ip saddr @whitelist_ipv4_udp accept
+		
+	}
+	
+	chain default_forward { 		
+		type filter hook forward priority 0; policy drop;
+	}
+	
+	chain default_output {
+		type filter hook output priority 0; policy accept;
+
+		# Allow loopback interface
+		oifname lo accept
+	}
+	
+}
+
+#
+# IPv6
+#
+# Block all IPv6 traffic because we don't use IPv6.
+#
+table ip6 filter {
+	
+	chain default_input {
+		type filter hook input priority 0; policy drop;
+	}
+	
+	chain default_forward {
+		type filter hook forward priority 0; policy drop;
+	}
+	
+	chain default_output {
+		type filter hook output priority 0; policy drop;
+	}
+
+}
+

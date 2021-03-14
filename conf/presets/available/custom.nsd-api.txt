@@ -1,0 +1,2 @@
+# Allow traffic for NSD-API
+add rule inet filter default_input tcp dport 253 counter accept comment "NSD-API"

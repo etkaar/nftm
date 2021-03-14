@@ -1,0 +1,2 @@
+# Allow HTTP traffic
+add rule inet filter default_input tcp dport http counter accept comment "http"

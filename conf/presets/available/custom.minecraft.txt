@@ -1,0 +1,2 @@
+# Allow traffic for Minecraft
+add rule inet filter default_input tcp dport 25565 counter accept comment "Gameserver: Minecraft"

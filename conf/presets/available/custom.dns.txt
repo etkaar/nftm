@@ -1,0 +1,3 @@
+# Allow traffic for DNS
+add rule inet filter default_input tcp dport 53 counter accept comment "DNS"
+add rule inet filter default_input udp dport 53 counter accept comment "DNS"

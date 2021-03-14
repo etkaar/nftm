@@ -1,0 +1,2 @@
+# Allow HTTPS traffic
+add rule inet filter default_input tcp dport https counter accept comment "https"
