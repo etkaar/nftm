@@ -14,7 +14,7 @@ apt install nftables
 
 # How to Use
 
-In following example, we will copy the script files to `/etc/firewall`:
+Just download the code as ZIP file. In following example, we will copy the script files to `/etc/firewall`:
 
 ```
 mkdir /etc/firewall/conf/presets/enabled
