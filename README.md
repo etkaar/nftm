@@ -112,7 +112,7 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 /etc/firewall/app.sh [...] --no-warnings
 ```
 
-# 3) Disable logging or dropped packages
+# 3) Disable logging for dropped packages
 
 For debugging purposes, dropped packages may be logged.
 
