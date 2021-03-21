@@ -15,7 +15,7 @@ apt install nftables
 # How to Use
 # 1) Enable default preset and check your whitelist
 
-Just download the code as ZIP file and login as root into your server. **Do never** automatically update such scripts (if there are changes or new features, manually validate the new version will not breatk your system).
+Just download the code as ZIP file and login as root into your server. **Do never** automatically update such scripts. If there are changes or new features, manually validate the new version will not break your system.
 
 In following example, we will copy the script files to `/etc/firewall`.
 
@@ -99,4 +99,21 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 
 ```
 /etc/firewall/app.sh [...] --no-warnings
+```
+
+# 3) Disable logging or dropped packages
+
+For debugging purposes, dropped packages may be logged. You should disable that once all runs fine by commenting out the line in `conf/additional_rules.txt`:
+
+```
+...
+
+#
+# Enables logging of dropped packages for debugging purposes
+#
+# You will find the logs in:
+#   /var/log/kern.log
+#   /var/log/syslog
+#
+#add rule inet filter default_input log prefix "nft dropped: "
 ```
