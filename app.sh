@@ -330,7 +330,7 @@ case "$CMD" in
 			
 			if [ "$OPT_DRY_RUN" = 1 ]
 			then
-				>&2 echo "Generated rulset can be found here:\n  $TMP_RULESET_FILE\n"
+				>&2 echo "Generated ruleset can be found here:\n  $TMP_RULESET_FILE\n"
 				
 				CHECKRESULT="`2>&1 nft -c -f $TMP_RULESET_FILE`"
 				
