@@ -1,7 +1,7 @@
 # nftables-managing-script
 Lightweight dash script (/bin/dash) to manage a nftables based firewall with periodically and atomically updated whitelists and blacklists.
 
-Tested on Debian 10 (Buster).
+Tested on Debian 10 Buster (nftables 0.9.0) and Debian Bullseye [Testing] (nftables 0.9.8).
 
 # Important
 In the default configuration, the firewall will **drop any incoming traffic** which is not whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` or the `conf/additional_rules.txt`.
@@ -13,15 +13,11 @@ apt install nftables
 ```
 
 # How to Use
+# 1) Enable default preset and check your whitelist
 
-Just download the code as ZIP file. In following example, we will copy the script files to `/etc/firewall`:
+Just download the code as ZIP file and login as root into your server. **Do never** automatically update such scripts (if there are changes or new features, manually validate the new version will not breatk your system).
 
-```
-mkdir /etc/firewall/conf/presets/enabled
-
-chmod 0500 /etc/firewall/*.sh
-chmod 0500 /etc/firewall/inc/*.sh
-```
+In following example, we will copy the script files to `/etc/firewall`.
 
 You need to enable at least **one default** preset. At this time, this will be `default ipv4-only` or `default ipv4-and-ipv6`:
 
@@ -45,8 +41,8 @@ To enable `http` and `https` (ports 80 and 443), just type in:
 After that, you may want to edit the `conf/whitelist.conf` to add your IP address for SSH access. It is a good idea to use DynDNS for that, so the firewall only allows SSH access from your IP address:
 
 ```
-# <dynamic hostname|address|subnet> <enabled> <protocol> <port(s)>
-dyndns.example.com 1 tcp 22
+# <dynamic hostname|address|subnet(*)>                      <enabled>           <protocol>              <port(s)>
+dyndns.example.com                                          1                   tcp                     22
 ```
 
 Once you are **sure** all is correct, do a full reload of the firewall but **do not end your SSH session** yet:
@@ -61,7 +57,9 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 /etc/firewall/app.sh show
 ```
 
-After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
+# 2) Setup cronjob and startup script
+
+(*) After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
 
 ```
 touch /etc/network/if-pre-up.d/firewall
@@ -87,4 +85,18 @@ You can also use following command:
 
 ```
 (crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
+```
+
+(*) If you are using Debian, you can let the script do that automatically:
+
+
+```
+/etc/firewall/app.sh setup-crontab
+/etc/firewall/app.sh setup-startupscript
+```
+
+The script will warn you, if the crontab or startup script is missing. To suppress that you can just append --no-warnings:
+
+```
+/etc/firewall/app.sh [...] --no-warnings
 ```
