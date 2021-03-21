@@ -3,11 +3,11 @@ table inet filter {
 
 	# Whitelist
 	set whitelist_ipv4_tcp {
-		type inet_service . ipv4_addr
+		type inet_service . ipv4_addr;__INTERVAL_FLAG_IF_SUPPORTED_
 	}
 	
 	set whitelist_ipv4_udp {
-		type inet_service . ipv4_addr
+		type inet_service . ipv4_addr;__INTERVAL_FLAG_IF_SUPPORTED_
 	}
 	
 	# Blacklist
