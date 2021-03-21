@@ -38,11 +38,22 @@ To enable `http` and `https` (ports 80 and 443), just type in:
 /etc/firewall/presets.sh enable custom https
 ```
 
-After that, you may want to edit the `conf/whitelist.conf` to add your IP address for SSH access. It is a good idea to use DynDNS for that, so the firewall only allows SSH access from your IP address:
+After that, you may want to edit the `conf/whitelist.conf` to add your IP address for SSH access. It is a good idea to use DynDNS for that, so the firewall only allows SSH access from your IP address. See below the default `conf/whitelist.conf`:
 
 ```
 # <dynamic hostname|address|subnet(*)>                      <enabled>           <protocol>              <port(s)>
-dyndns.example.com                                          1                   tcp                     22
+
+# IPv4 or IPv6 addresses:
+# 127.0.0.1                                                  1                   tcp                     22,587
+# 2001:0DB8:7654:0010:FEDC:0000:0000:3210                    1                   udp                     27015
+
+# You can use hostnames which are associated
+# with an IPv4 and/or IPv6 address:
+#
+# client-dyndns.example.com                                  1                   tcp                     22,587
+
+# (*) To use subnets, you need nftables >= 0.9.4:
+# 127.0.0.1/8                                                1                   tcp                     22
 ```
 
 Once you are **sure** all is correct, do a full reload of the firewall but **do not end your SSH session** yet:
