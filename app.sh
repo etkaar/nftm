@@ -330,7 +330,17 @@ case "$CMD" in
 			
 			if [ "$OPT_DRY_RUN" = 1 ]
 			then
-				>&2 echo "DRY-RUN: Successfully generated rulset (nft ruleset was *not* updated):\n  $TMP_RULESET_FILE"
+				>&2 echo "Generated rulset can be found here:\n  $TMP_RULESET_FILE\n"
+				
+				CHECKRESULT="`2>&1 nft -c -f $TMP_RULESET_FILE`"
+				
+				if [ ! "$CHECKRESULT" = "" ]
+				then
+					>&2 echo "DRY-RUN: ***FAILED***\n"
+					>&2 echo "$CHECKRESULT"
+				else
+					>&2 echo "DRY-RUN: Success."
+				fi
 			else
 				if nft -f $TMP_RULESET_FILE
 				then
