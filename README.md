@@ -103,7 +103,9 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 
 # 3) Disable logging or dropped packages
 
-For debugging purposes, dropped packages may be logged. You should disable that once all runs fine by commenting out the line in `conf/additional_rules.txt`:
+For debugging purposes, dropped packages may be logged.
+
+You should disable that once all runs fine by commenting out the line in `conf/additional_rules.txt`:
 
 ```
 ...
