@@ -59,7 +59,7 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 
 # 2) Setup cronjob and startup script
 
-(*) After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
+**(*)** After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
 
 ```
 touch /etc/network/if-pre-up.d/firewall
@@ -87,7 +87,7 @@ You can also use following command:
 (crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
 ```
 
-(*) If you are using Debian, you can let the script do that automatically:
+**(*)** If you are using Debian, you can let the script do that automatically:
 
 
 ```
