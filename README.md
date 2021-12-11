@@ -1,9 +1,9 @@
-# nftables-managing-script
-Lightweight dash script (/bin/dash) to manage a nftables based firewall with periodically and atomically updated whitelists and blacklists.
+# nftables: Firewall Managing Script
+Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables) based firewall with periodically and atomically updated whitelists and blacklists. Written in DASH ([Debian Almquist Shell](https://wiki.archlinux.org/title/Dash)) to offer POSIX compliance.
 
 Tested on Debian 10 Buster (nftables 0.9.0) and Debian Bullseye [Testing] (nftables 0.9.8).
 
-# Important
+## 1.0 Important
 In the default configuration, the firewall will **drop any incoming traffic** which is not whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` or the `conf/additional_rules.txt`.
 
 Your server needs to use nftables instead of iptables:
@@ -12,8 +12,8 @@ Your server needs to use nftables instead of iptables:
 apt install nftables
 ```
 
-# How to Use
-# 1) Enable default preset and check your whitelist
+## 2.0 How to use
+### 2.1 Enable default preset and check your whitelist
 
 Just download the code as ZIP file and login as root into your server. **Do never** automatically update such scripts. If there are changes or new features, manually validate the new version will not break your system.
 
@@ -68,7 +68,7 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 /etc/firewall/app.sh show
 ```
 
-# 2) Setup cronjob and startup script
+### 2.2 Setup cronjob and startup script
 
 **(*)** After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
 
@@ -112,7 +112,7 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 /etc/firewall/app.sh [...] --no-warnings
 ```
 
-# 3) Disable logging for dropped packages
+### 2.3 Disable logging for dropped packages
 
 For debugging purposes, dropped packages may be logged.
 
