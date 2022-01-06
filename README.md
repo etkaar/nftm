@@ -1,24 +1,24 @@
-# nftables-managing-script
+# nftables Managing Script
 
 Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables) based firewall with periodically and atomically updated whitelists and blacklists. Written in DASH ([Debian Almquist Shell](https://wiki.archlinux.org/title/Dash)) to offer POSIX compliance.
 
-Tested on Debian 10 Buster (nftables 0.9.0) and Debian Bullseye [Testing] (nftables 0.9.8).
+## 1.0 Introduction
 
-## 1.0 Important
-In the default configuration, the firewall will **drop any incoming traffic** which is not whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` or the `conf/additional_rules.txt`.
+This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster¹.
 
-Your server needs to use nftables instead of iptables:
+In the default configuration, the firewall will **drop any incoming traffic** which is not either whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` *or* the `conf/additional_rules.txt`.
 
-```
-apt install nftables
-```
+---
 
-## 2.0 How to use
-### 2.1 Enable default preset and check your whitelist
+¹ **Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).
 
-Just download the code as ZIP file and login as root into your server. **Do never** automatically update such scripts. If there are changes or new features, manually validate the new version will not break your system.
+## 2.0 How to Use
 
-In following example, we will copy the script files to `/etc/firewall`.
+In the following examples, we will use `/etc/firewall` as script path. Therefore, login with `root` permissions and manually download the code as [ZIP file](https://github.com/etkaar/nftables-managing-script/archive/refs/heads/main.zip) and move its content there.
+
+⛔️ Do **not** automatically update this script. If there are any changes, manually update it and make sure the new version will not break your system. This script is designed to be simple and to be only changed for reasons of stability and security.
+
+### 2.1 Presets and Whitelist
 
 You need to enable at least **one default** preset. At this time, this will be `default ipv4-only` or `default ipv4-and-ipv6`:
 
@@ -69,9 +69,9 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 /etc/firewall/app.sh show
 ```
 
-### 2.2 Setup cronjob and startup script
+### 2.2 Startup Script and Cronjob
 
-**(*)** After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
+After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
 
 ```
 touch /etc/network/if-pre-up.d/firewall
@@ -99,8 +99,7 @@ You can also use following command:
 (crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
 ```
 
-**(*)** If you are using Debian, you can let the script do that automatically:
-
+If you are using Debian, you can let the script do that automatically:
 
 ```
 /etc/firewall/app.sh setup-crontab
@@ -113,7 +112,7 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 /etc/firewall/app.sh [...] --no-warnings
 ```
 
-### 2.3 Disable logging for dropped packages
+### 2.3 Logging
 
 For debugging purposes, dropped packages may be logged.
 
