@@ -14,7 +14,25 @@ In the default configuration, the firewall will **drop any incoming traffic** wh
 
 ## 2.0 How to Use
 
-In the following examples, we will use `/etc/firewall` as script path. Therefore, login with `root` permissions and manually download the code as [ZIP file](https://github.com/etkaar/nftables-managing-script/archive/refs/heads/main.zip) and move its content there.
+In the following examples, we will use `/etc/firewall` as script path.
+
+First, login with `root` permissions and manually download the code as [ZIP file](https://github.com/etkaar/nftables-managing-script/archive/refs/heads/main.zip) and move its content there:
+
+```
+mkdir /etc/firewall
+cd /etc/firewall
+wget https://github.com/etkaar/nftables-managing-script/archive/refs/heads/main.tar.gz
+tar -xzf main.tar.gz --strip-components=1
+rm main.tar.gz
+```
+
+After that, let the script automatically validate the file permissions:
+
+```
+chmod 0700 /etc/firewall/app.sh
+/etc/firewall/app.sh update-permissions
+```
+
 
 ⛔️ Do **not** automatically update this script. If there are any changes, manually update it and make sure the new version will not break your system. This script is designed to be simple and to be only changed for reasons of stability and security.
 
