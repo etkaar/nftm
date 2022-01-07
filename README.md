@@ -12,7 +12,40 @@ In the default configuration, the firewall will **drop any incoming traffic** wh
 
 ¹ **Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).
 
-## 2.0 How to Use
+## 2.0 Compiling
+
+nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following script (tested on Debian 11 Bullseye):
+
+```
+apt install git autoconf autogen libtool make pkg-config
+apt install bison flex asciidoc libgmp-dev libedit-dev python3-distutils
+
+git clone git://git.netfilter.org/libmnl
+cd libmnl
+sh autogen.sh
+./configure
+make
+make install
+
+git clone git://git.netfilter.org/libnftnl
+cd libnftnl
+sh autogen.sh
+./configure
+make
+make install
+
+git clone git://git.netfilter.org/nftables
+cd nftables
+sh autogen.sh
+./configure
+make
+make install
+
+reboot
+nft --version
+```
+
+## 3.0 How to Use
 
 In the following examples, we will use `/etc/firewall` as script path.
 
@@ -36,7 +69,7 @@ chmod 0700 /etc/firewall/app.sh
 
 ⛔️ Do **not** automatically update this script. If there are any changes, manually update it and make sure the new version will not break your system. This script is designed to be simple and to be only changed for reasons of stability and security.
 
-### 2.1 Presets and Whitelist
+### 3.1 Presets and Whitelist
 
 You need to enable at least **one default** preset. At this time, this will be `default ipv4-only` or `default ipv4-and-ipv6`:
 
@@ -87,7 +120,7 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 /etc/firewall/app.sh show
 ```
 
-### 2.2 Startup Script and Cronjob
+### 3.2 Startup Script and Cronjob
 
 After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
 
@@ -130,7 +163,7 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 /etc/firewall/app.sh [...] --no-warnings
 ```
 
-### 2.3 Logging
+### 3.3 Logging
 
 For debugging purposes, dropped packages may be logged.
 
