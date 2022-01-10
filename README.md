@@ -119,8 +119,24 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 ```
 
 ### 3.2 Startup Script and Cronjob
+#### 3.2.1 Automatically
 
-After that, you need to make sure the firewall ruleset is always reloaded on reboot. Create a startup file and allow execution:
+If you are using Debian, you can let the script automatically setup both the crontab and the startup script:
+
+```
+/etc/firewall/app.sh setup-crontab
+/etc/firewall/app.sh setup-startupscript
+```
+
+The script will warn you, if the crontab or startup script is missing. To suppress that you can just append --no-warnings:
+
+```
+/etc/firewall/app.sh [...] --no-warnings
+```
+
+#### 3.2.2 Manually
+
+Create a startup file and allow execution:
 
 ```
 touch /etc/network/if-pre-up.d/firewall
@@ -134,9 +150,9 @@ This startup file needs following content:
 /etc/firewall/app.sh init
 ```
 
-Finally, you need a cron job to make sure DynDNS records are periodically updated, in that case every three (3) minutes.
+Finally, you need a crontab to make sure DynDNS records are periodically updated, the default is every three (3) minutes.
 
-Run `crontab -e` as **root** user and add following line:
+Run `crontab -e` as `root` user and add following line:
 
 ```
 */3 * * * * /etc/firewall/app.sh cron
@@ -146,19 +162,6 @@ You can also use following command:
 
 ```
 (crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
-```
-
-If you are using Debian, you can let the script do that automatically:
-
-```
-/etc/firewall/app.sh setup-crontab
-/etc/firewall/app.sh setup-startupscript
-```
-
-The script will warn you, if the crontab or startup script is missing. To suppress that you can just append --no-warnings:
-
-```
-/etc/firewall/app.sh [...] --no-warnings
 ```
 
 ### 3.3 Logging
