@@ -135,7 +135,7 @@ If you are using Debian, you can let the script automatically setup both the cro
 /etc/firewall/app.sh setup-startupscript
 ```
 
-The script will warn you, if the crontab or startup script is missing. To suppress that you can just append --no-warnings:
+The script will warn you, if the crontab or startup script is missing. To suppress that you can just append `--no-warnings`:
 
 ```
 /etc/firewall/app.sh [...] --no-warnings
