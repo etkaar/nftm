@@ -68,7 +68,7 @@ chmod 0700 /etc/firewall/app.sh
 /etc/firewall/app.sh update-permissions
 ```
 
-⛔️ Do **not** automatically update this script. In case you need to update it, make sure before that it won't break your system.
+⛔️ Do **not** automatically update this script. In case you need to update it, make sure that it won't break your system.
 
 ---
 
