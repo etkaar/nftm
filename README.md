@@ -12,6 +12,8 @@ In the default configuration, the firewall will **drop any incoming traffic** wh
 
 ¹ **Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).
 
+---
+
 ## 2.0 Compiling
 
 nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following script (tested on Debian 11 Bullseye):
@@ -45,6 +47,8 @@ reboot
 nft --version
 ```
 
+---
+
 ## 3.0 How to Use
 
 In the following examples, we will use `/etc/firewall` as script path. Thus, login with `root` permissions, manually download the code and move its content there:
@@ -64,8 +68,9 @@ chmod 0700 /etc/firewall/app.sh
 /etc/firewall/app.sh update-permissions
 ```
 
-
 ⛔️ Do **not** automatically update this script. In case you need to update it, make sure before that it won't break your system.
+
+---
 
 ### 3.1 Presets and Whitelist
 
@@ -118,6 +123,8 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 /etc/firewall/app.sh show
 ```
 
+---
+
 ### 3.2 Startup Script and Cronjob
 #### 3.2.1 Automatically
 
@@ -163,6 +170,8 @@ You can also use following command:
 ```
 (crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
 ```
+
+---
 
 ### 3.3 Logging
 
