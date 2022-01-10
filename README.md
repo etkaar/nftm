@@ -47,9 +47,7 @@ nft --version
 
 ## 3.0 How to Use
 
-In the following examples, we will use `/etc/firewall` as script path.
-
-First, login with `root` permissions and manually download the code as [ZIP file](https://github.com/etkaar/nftables-managing-script/archive/refs/heads/main.zip) and move its content there:
+In the following examples, we will use `/etc/firewall` as script path. Thus, login with `root` permissions, manually download the code and move its content there:
 
 ```
 mkdir /etc/firewall
@@ -67,11 +65,11 @@ chmod 0700 /etc/firewall/app.sh
 ```
 
 
-⛔️ Do **not** automatically update this script. If there are any changes, manually update it and make sure the new version will not break your system. This script is designed to be simple and to be only changed for reasons of stability and security.
+⛔️ Do **not** automatically update this script. In case you need to update it, make sure before that it won't break your system.
 
 ### 3.1 Presets and Whitelist
 
-You need to enable at least **one default** preset. At this time, this will be `default ipv4-only` or `default ipv4-and-ipv6`:
+You need to enable at least **one default** preset. At this time, this will be either `default ipv4-only` or `default ipv4-and-ipv6`:
 
 ```
 /etc/firewall/presets.sh enable default ipv4-only
@@ -83,7 +81,7 @@ List all available presets:
 /etc/firewall/presets.sh list
 ```
 
-To enable `http` and `https` (ports 80 and 443), just type in:
+To enable the `http` and `https` presets (ports 80 and 443), just type in:
 
 ```
 /etc/firewall/presets.sh enable custom http
