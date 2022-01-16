@@ -1,0 +1,6 @@
+# Allow traffic for FiveM
+add rule inet filter default_input udp dport 30120 counter accept comment "Gameserver: FiveM"
+add rule inet filter default_input tcp dport 30120 counter accept comment "Gameserver: FiveM"
+
+# Disabled: You better want to add specific users to the whitelist
+#add rule inet filter default_input tcp dport 40120 counter accept comment "Gameserver: TXAdmin (FiveM)"
