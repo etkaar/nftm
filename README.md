@@ -1,4 +1,4 @@
-# nftables Managing Script
+# nftm: Nftables Managing Script
 
 Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables) based firewall with periodically and atomically updated whitelists and blacklists. Written in DASH ([Debian Almquist Shell](https://wiki.archlinux.org/title/Dash)) to offer POSIX compliance.
 
