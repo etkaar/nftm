@@ -1,6 +1,6 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-22 etkaar <https://github.com/etkaar>
+Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -46,7 +46,7 @@ ENABLED_PRESETS_PATH="$PRESETS_PATH/enabled"
 
 ADDITIONAL_RULES_FILE="$CONF_PATH/additional_rules.txt"
 
-# Create dirs if not exist
+# Create dirs if not existing
 for CHECKPATH in "$TMP_PATH" "$ENABLED_PRESETS_PATH"
 do
 	if [ ! -d "$CHECKPATH" ]
