@@ -16,7 +16,7 @@ In the default configuration, the firewall will **drop any incoming traffic** wh
 
 ## 2.0 Compiling
 
-nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following script (tested on Debian 11 Bullseye):
+nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following commands (tested on Debian 11 Bullseye):
 
 ```
 apt install git autoconf autogen libtool make pkg-config
