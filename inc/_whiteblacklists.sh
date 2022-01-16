@@ -1,6 +1,6 @@
-#!/bin/dash
+#!/bin/sh
 : '''
-Copyright (c) 2020-21 etkaar <https://github.com/etkaar>
+Copyright (c) 2020-22 etkaar <https://github.com/etkaar>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -191,6 +191,24 @@ func_ARE_CONCATENATED_SETS_SUPPORTED() {
 	else
 		return 0
 	fi
+}
+
+# We need this to replace some __VARIABLES__ in the template files
+func_APPLY_TEMPLATE_SUBSTITUTIONS() {
+	TEMPLATE="$1"
+	
+	# The interval flag (concatenated sets with more than one type) may be not supported,
+	# so we only set it if support is guaranteed (nftables >= 0.9.4). Blacklists are not
+	# affected, since they do not concatenate anything.
+	if func_ARE_CONCATENATED_SETS_SUPPORTED
+	then
+		INTERVAL_FLAG_IF_SUPPORTED=" flags interval;"
+	else
+		INTERVAL_FLAG_IF_SUPPORTED=""
+	fi
+	
+	TEMPLATE=`echo "$TEMPLATE" | sed "s/__INTERVAL_FLAG_IF_SUPPORTED_/$INTERVAL_FLAG_IF_SUPPORTED/g"`
+	echo "$TEMPLATE"
 }
 
 # Create elements list for nft set
