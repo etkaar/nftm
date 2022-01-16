@@ -1,6 +1,6 @@
-#!/bin/dash
+#!/bin/sh
 : '''
-Copyright (c) 2020-21 etkaar <https://github.com/etkaar>
+Copyright (c) 2020-22 etkaar <https://github.com/etkaar>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,7 @@ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 OR OTHER DEALINGS IN THE SOFTWARE.
 '''
-
-# dependencies: nftables
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Change working directory
 ABSPATH="$(cd "$(dirname "$0")"; pwd -P)"
@@ -46,7 +45,6 @@ CMD=$1
 case "$CMD" in
 
 	list)
-		
 		# Number of presets
 		TOTAL_AVAILABLE_PRESETS=`ls $AVAILABLE_PRESETS_PATH | wc -l`
 		TOTAL_ENABLED_PRESETS=`ls $ENABLED_PRESETS_PATH | wc -l`
@@ -79,11 +77,9 @@ case "$CMD" in
 				echo "  $PRESET"
 			done
 		fi
-		
 	;;
 	
 	status|enable|disable)
-	
 		# Preset type
 		PRESET_TYPE=$2
 		
@@ -197,7 +193,6 @@ case "$CMD" in
 			fi
 			
 		fi
-		
 	;;
 	
 	*)
@@ -208,4 +203,3 @@ case "$CMD" in
 esac
 
 exit 0
-
