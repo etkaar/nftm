@@ -1,15 +1,82 @@
-#!/bin/dash
+#!/bin/sh
+: '''
+Copyright (c) 2020-22 etkaar <https://github.com/etkaar>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.
+'''
+
+# Notes
+: """
+	local VAR
+		The local keyword is not POSIX-compliant, therefore not used. Instead,
+		if required and where suitable, we make use of a subshell.
+"""
+
+# If colors are enabled
+func_COLORS_ENABLED() {
+	return 0
+}
+
+# Message to STDERR
+func_STDERR() {
+	# Subshell
+	(
+		MESSAGE="$1"
+		NO_LINE_BREAK="$2"
+		NO_COLORS="$3"
+		
+		if func_COLORS_ENABLED && [ "$NO_COLORS" != "1" ]
+		then
+			# Red
+			>&2 echo -n "\e[0;31m"
+		fi
+		
+		if [ "$NO_LINE_BREAK" = "1" ]
+		then
+			>&2 echo -n "$MESSAGE"
+		else
+			>&2 echo "$MESSAGE"
+		fi
+		
+		if func_COLORS_ENABLED && [ "$NO_COLORS" != "1" ]
+		then
+			>&2 echo -n "\e[m"
+		fi
+	)
+}
 
 # Prints error message to stderr and exit
 func_EXIT_ERROR() {
-	EXIT_CODE="$1"
-	MESSAGE="$2"
+	# Subshell
+	(
+		EXIT_CODE="$1"
+		MESSAGE="$2"
+		NO_COLORS="$3"
+		
+		func_STDERR "$MESSAGE" 0 "$NO_COLORS"
+		
+		return "$EXIT_CODE"
+	)
 	
-	>&2 echo "$MESSAGE"
-	
-	if [ "$EXIT_CODE" -gt -1 ]
+	if [ "$?" -gt -1 ]
 	then
-		exit "$EXIT_CODE"
+		exit "$?"
 	fi
 }
 
