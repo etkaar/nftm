@@ -56,7 +56,7 @@ In the following examples, we will use `/etc/firewall` as script path. Thus, log
 ```
 mkdir /etc/firewall
 cd /etc/firewall
-wget https://github.com/etkaar/nftables-managing-script/archive/refs/heads/main.tar.gz
+wget https://github.com/etkaar/nftm/archive/refs/heads/main.tar.gz
 tar -xzf main.tar.gz --strip-components=1
 rm main.tar.gz
 ```
