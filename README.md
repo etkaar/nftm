@@ -120,7 +120,7 @@ Once you are **sure** all is correct, do a full reload of the firewall but **do 
 Now, try to open a *seperate* SSH session to your server. If that works, the IP address could be successfully fetched from your DynDNS name. Of course, you can and should manually doublecheck that by listing the firewall ruleset:
 
 ```
-/etc/firewall/app.sh show
+/etc/firewall/app.sh list
 ```
 
 ---
