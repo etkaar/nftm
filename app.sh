@@ -1,6 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
+Version 1.0.2 (April, 22nd 2022)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -55,6 +56,27 @@ do
 		chmod 0700 "$CHECKPATH"
 	fi
 done
+
+# Minimum required nftables >= 0.9.0
+NFTABLES_REQUIRED_MIN_VERSION_STRING="0.9.0"
+NFTABLES_REQUIRED_MIN_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_REQUIRED_MIN_VERSION_STRING"`"
+
+# Currently installed nftables version
+NFTABLES_INSTALLED_VERSION_STRING="$(echo "`nft --version`" | awk '{print $2}' | tr -d 'v')"
+NFTABLES_INSTALLED_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_INSTALLED_VERSION_STRING"`"
+
+# Crontab for whitelists and blacklists update
+# (Prevents you from being locked out after IP change)
+CRONTAB_INTERVAL_MINUTES="3"
+CRONTAB_COMMAND="$ABSPATH/app.sh cron"
+CRONTAB_LINE="*/$CRONTAB_INTERVAL_MINUTES * * * * $CRONTAB_COMMAND"
+
+# Firewall startup script
+STARTUP_SCRIPT_PATH="/etc/network/if-pre-up.d/firewall"
+STARTUP_SCRIPT_CONTENT=`cat <<-_EOF_
+						#!/bin/sh
+						$ABSPATH/app.sh init
+						_EOF_`
 
 # Command
 CMD="$1"
@@ -172,7 +194,7 @@ func_SHOW_WARNINGS() {
 	fi
 }
 
-# dependencies: nftables >= 0.9.0
+# Make sure supported version of nftables is installed
 if ! nft --version >/dev/null 2>&1
 then
 	func_EXIT_ERROR 1 "ERROR: Package 'nftables' not installed."
@@ -180,12 +202,6 @@ fi
 
 if [ ! "$CMD" = "" ] && [ "$OPT_NO_VERSION_CHECK" = 0 ]
 then
-	NFTABLES_REQUIRED_MIN_VERSION_STRING="0.9.0"
-	NFTABLES_REQUIRED_MIN_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_REQUIRED_MIN_VERSION_STRING"`"
-
-	NFTABLES_INSTALLED_VERSION_STRING="$(echo "`nft --version`" | awk '{print $2}' | tr -d 'v')"
-	NFTABLES_INSTALLED_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_INSTALLED_VERSION_STRING"`"
-
 	# Check for nftables version
 	if [ $NFTABLES_INSTALLED_VERSION_INTEGER -lt $NFTABLES_REQUIRED_MIN_VERSION_INTEGER ]
 	then
@@ -200,19 +216,6 @@ then
 		func_EXIT_ERROR 1 "  https://github.com/etkaar/nftables-managing-script"
 	fi
 fi
-
-# Crontab for whitelists and blacklists update
-# (Prevents you from being locked out after IP change)
-CRONTAB_INTERVAL_MINUTES="3"
-CRONTAB_COMMAND="$ABSPATH/app.sh cron"
-CRONTAB_LINE="*/$CRONTAB_INTERVAL_MINUTES * * * * $CRONTAB_COMMAND"
-
-# Firewall startup script
-STARTUP_SCRIPT_PATH="/etc/network/if-pre-up.d/firewall"
-STARTUP_SCRIPT_CONTENT=`cat <<-_EOF_
-						#!/bin/sh
-						$ABSPATH/app.sh init
-						_EOF_`
 
 # Warn of missing crontab or startup script
 if [ ! "$OPT_NO_WARNINGS" = 1 ]
@@ -229,8 +232,11 @@ then
 	fi
 fi
 
-# Always validate permissions
-func_UPDATE_PERMISSIONS
+# Validate permissions as long any command is given
+if [ ! "$CMD" = "" ]
+then
+	func_UPDATE_PERMISSIONS
+fi
 
 # Check if IPv6 preset is enabled
 IPV6_ENABLED=1
