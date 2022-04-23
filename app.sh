@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.2 (April, 22nd 2022)
+Version 1.0.3 (April, 23rd 2022)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -206,14 +206,6 @@ then
 	if [ $NFTABLES_INSTALLED_VERSION_INTEGER -lt $NFTABLES_REQUIRED_MIN_VERSION_INTEGER ]
 	then
 		func_EXIT_ERROR 1 "ERROR: You need nftables >= $NFTABLES_REQUIRED_MIN_VERSION_STRING (current: $NFTABLES_INSTALLED_VERSION_STRING)."
-	fi
-
-	# Due to a critical bug, this is not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye)
-	# See: https://github.com/etkaar/nftables-managing-script
-	if [ $NFTABLES_INSTALLED_VERSION_INTEGER -ge `func_VERSION_STRING_TO_INTEGER 3 "0.9.8"` ] && [ $NFTABLES_INSTALLED_VERSION_INTEGER -le `func_VERSION_STRING_TO_INTEGER 3 "1.0.1"` ]
-	then
-		func_STDERR "ERROR: Not compatible with this nftables version ($NFTABLES_INSTALLED_VERSION_STRING) due to a critical bug present in 0.9.8–1.0.1, see:"
-		func_EXIT_ERROR 1 "  https://github.com/etkaar/nftables-managing-script"
 	fi
 fi
 
