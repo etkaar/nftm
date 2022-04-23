@@ -4,13 +4,14 @@ Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables
 
 ## 1.0 Introduction
 
-This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster¹.
+This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster and 11 Bullseye¹.
 
 In the default configuration, the firewall will **drop any incoming traffic** which is not either whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` *or* the `conf/additional_rules.txt`.
 
 ---
 
-¹ **Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).
+¹ ~~**Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).~~<br/>
+Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263efd7cb605e2f7af72717a2a951999217) in [5.10.103-1](https://metadata.ftp-master.debian.org/changelogs//main/l/linux/linux_5.10.106-1_changelog) on 7th March 2022.
 
 ---
 
