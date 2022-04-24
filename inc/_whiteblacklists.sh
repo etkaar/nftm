@@ -64,7 +64,7 @@ func_IS_IPV4_ADDRESS() {
 	# Groups are separated by a dot (.)
 	func_SET_IFS '\n'
 	
-	for GROUP in $(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/\./\n/g")
+	for GROUP in `printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/\./\n/g"`
 	do
 		# Check if group is an integer number
 		if ! func_IS_UNSIGNED_INTEGER "$GROUP"
@@ -130,7 +130,7 @@ func_IS_IPV6_ADDRESS() {
 	# Groups are separated by colon (:)
 	func_SET_IFS '\n'
 	
-	for GROUP in $(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/:/\n/g")
+	for GROUP in `printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/:/\n/g"`
 	do
 		# Validate range (not more than 4 bytes)
 		if [ ${#GROUP} -gt 4 ]
@@ -225,7 +225,6 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 	# Iterate through list
 	for LINE in $LIST_FILE_CONTENT
 	do
-	
 		HOSTNAME_SUBNET_OR_ADDRESS=`printf '%s' "$LINE" | awk '{print $1}'`
 		IS_ENABLED=`printf '%s' "$LINE" | awk '{print $2}'`
 		PROTOCOL=`printf '%s' "$LINE" | awk '{print $3}'`
@@ -331,7 +330,6 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		then
 			echo "			$IP_ADDR,"
 		fi
-		
 	done
 	unset IFS
 	
@@ -623,4 +621,3 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 	
 	rm $TMP_RULESET_FILE
 }
-	
