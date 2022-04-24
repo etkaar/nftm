@@ -77,14 +77,6 @@ func_EXIT_ERROR() {
 	exit "$?"
 }
 
-# Ensure only root runs this command
-func_ENSURE_ROOT() {
-	if [ ! `whoami` = "root" ]
-	then
-		func_EXIT_ERROR 1 "You need to run this command as root (or use sudo)."
-	fi
-}
-
 # Check if string is an unsigned integer (so both +1 and -1 is not considered as be valid)
 func_IS_UNSIGNED_INTEGER() {
 	NUMBER="$1"
@@ -129,7 +121,7 @@ func_SUBSTR_COUNT() {
 
 # Get nftables version integer
 func_GET_NFT_VERSION_INTEGER() {
-	func_VERSION_STRING_TO_INTEGER 3 $(echo "`nft --version`" | awk '{print $2}')
+	func_VERSION_STRING_TO_INTEGER 3 `echo "`nft --version`" | awk '{print $2}'`
 }
 
 # Converts a version string such as "v0.9.0" to an integer to allow comparisons.
