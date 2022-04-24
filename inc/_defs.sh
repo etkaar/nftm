@@ -74,10 +74,7 @@ func_EXIT_ERROR() {
 		return "$EXIT_CODE"
 	)
 	
-	if [ "$?" -gt -1 ]
-	then
-		exit "$?"
-	fi
+	exit "$?"
 }
 
 # Ensure only root runs this command
