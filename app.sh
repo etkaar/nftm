@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.3 (April, 23rd 2022)
+Version 1.0.4 (April, 24th 2022)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,10 @@ cd "$ABSPATH"
 . ./inc/_whiteblacklists.sh
 
 # Ensure only root can run this script
-func_ENSURE_ROOT
+if [ ! `whoami` = "root" ]
+then
+	func_EXIT_ERROR 1 "You need to run this command as root."
+fi
 
 # Paths
 CONF_PATH="$ABSPATH/conf"
