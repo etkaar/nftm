@@ -121,7 +121,7 @@ func_SUBSTR_COUNT() {
 
 # Get nftables version integer
 func_GET_NFT_VERSION_INTEGER() {
-	func_VERSION_STRING_TO_INTEGER 3 `echo "`nft --version`" | awk '{print $2}'`
+	func_VERSION_STRING_TO_INTEGER 3 $(echo "`nft --version`" | awk '{print $2}')
 }
 
 # Converts a version string such as "v0.9.0" to an integer to allow comparisons.
