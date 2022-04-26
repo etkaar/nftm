@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.4 (April, 24th 2022)
+Version 1.0.5 (April, 26th 2022)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ cd "$ABSPATH"
 . ./inc/_whiteblacklists.sh
 
 # Ensure only root can run this script
-if [ ! `whoami` = "root" ]
+if [ ! "$(whoami)" = "root" ]
 then
 	func_EXIT_ERROR 1 "You need to run this command as root."
 fi
@@ -62,11 +62,11 @@ done
 
 # Minimum required nftables >= 0.9.0
 NFTABLES_REQUIRED_MIN_VERSION_STRING="0.9.0"
-NFTABLES_REQUIRED_MIN_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_REQUIRED_MIN_VERSION_STRING"`"
+NFTABLES_REQUIRED_MIN_VERSION_INTEGER="$(func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_REQUIRED_MIN_VERSION_STRING")"
 
 # Currently installed nftables version
-NFTABLES_INSTALLED_VERSION_STRING="$(echo "`nft --version`" | awk '{print $2}' | tr -d 'v')"
-NFTABLES_INSTALLED_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_INSTALLED_VERSION_STRING"`"
+NFTABLES_INSTALLED_VERSION_STRING="$(printf '%s' "$(nft --version)" | awk '{print $2}' | tr -d 'v')"
+NFTABLES_INSTALLED_VERSION_INTEGER="$(func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_INSTALLED_VERSION_STRING")"
 
 # Crontab for whitelists and blacklists update
 # (Prevents you from being locked out after IP change)
@@ -75,11 +75,8 @@ CRONTAB_COMMAND="$ABSPATH/app.sh cron"
 CRONTAB_LINE="*/$CRONTAB_INTERVAL_MINUTES * * * * $CRONTAB_COMMAND"
 
 # Firewall startup script
-STARTUP_SCRIPT_PATH="/etc/network/if-pre-up.d/firewall"
-STARTUP_SCRIPT_CONTENT=`cat <<-_EOF_
-						#!/bin/sh
-						$ABSPATH/app.sh init
-						_EOF_`
+STARTUP_SCRIPT_PATH="/etc/network/if-pre-up.d/firewall"						
+STARTUP_SCRIPT_CONTENT="$(printf '%s\n' "#!/bin/sh" "$ABSPATH/app.sh init")"
 
 # Command
 CMD="$1"
@@ -130,23 +127,23 @@ done
 
 # Help message
 func_USAGE() {
-	echo "Basic: ${0} {list|update|full-reload|flush}"
-	echo "Setup:  ${0} {setup-crontab|setup-startupscript|update-permissions}"
-	echo ""
-	echo "Options (general):"
-	echo "  --no-warnings          Do not show warnings."
-	echo "  --no-version-check     Ignore version checks (forces to run even with incompatible versions)."
-	echo "  --dry-run              Do generate, but not actually update the nft ruleset."
-	echo "  --debug                Show debug messages."
-	echo ""
-	echo "Configuration:"
-	echo "  $CONF_PATH/whitelist.conf"
-	echo "  $CONF_PATH/blacklist.conf"
-	echo "  $CONF_PATH/additional_rules.txt"
-	echo ""
-	echo "Presets:"
-	echo "  $AVAILABLE_PRESETS_PATH/"
-	echo ""
+	func_STDOUT "Basic: ${0} {list|update|full-reload|flush}"
+	func_STDOUT "Setup:  ${0} {setup-crontab|setup-startupscript|update-permissions}"
+	func_STDOUT ""
+	func_STDOUT "Options (general):"
+	func_STDOUT "  --no-warnings          Do not show warnings."
+	func_STDOUT "  --no-version-check     Ignore version checks (forces to run even with incompatible versions)."
+	func_STDOUT "  --dry-run              Do generate, but not actually update the nft ruleset."
+	func_STDOUT "  --debug                Show debug messages."
+	func_STDOUT ""
+	func_STDOUT "Configuration:"
+	func_STDOUT "  $CONF_PATH/whitelist.conf"
+	func_STDOUT "  $CONF_PATH/blacklist.conf"
+	func_STDOUT "  $CONF_PATH/additional_rules.txt"
+	func_STDOUT ""
+	func_STDOUT "Presets:"
+	func_STDOUT "  $AVAILABLE_PRESETS_PATH/"
+	func_STDOUT ""
 }
 
 # Update permissions
@@ -161,19 +158,19 @@ func_UPDATE_PERMISSIONS() {
 	chmod --changes 0700 "$ABSPATH/presets.sh"
 
 	# files: scripts
-	for FILE in `ls "$INC_PATH"/*`
+	for FILE in $(ls "$INC_PATH"/*)
 	do
 		chmod --changes 0500 "$FILE"
 	done
 
 	# files: configuration files
-	for FILE in `ls "$CONF_PATH"/*.conf`
+	for FILE in $(ls "$CONF_PATH"/*.conf)
 	do
 		chmod --changes 0600 "$FILE"
 	done
 
 	# files: presets
-	for FILE in `ls "$AVAILABLE_PRESETS_PATH"/*`
+	for FILE in $(ls "$AVAILABLE_PRESETS_PATH"/*)
 	do
 		chmod --changes 0600 "$FILE"
 	done
@@ -185,15 +182,15 @@ func_SHOW_WARNINGS() {
 	# Check if crontab exists
 	if ! func_USER_CRONTAB_EXISTS "$CRONTAB_LINE"
 	then
-		echo "WARNING: No user crontab for root found (see \"crontab -l\"). Run following command to setup it automatically:"
-		echo "  ${0} setup-crontab\n"
+		printf '%s\n' "WARNING: No user crontab for root found (see \"crontab -l\"). Run following command to setup it automatically:"
+		printf '%s\n' "  ${0} setup-crontab"
 	fi
 
 	# Check if firewall startup script exists
 	if [ ! -f "$STARTUP_SCRIPT_PATH" ]
 	then
-		echo "WARNING: No startup script found. Run following command to setup it automatically:"
-		echo "  ${0} setup-startupscript\n"
+		printf '%s\n' "WARNING: No startup script found. Run following command to setup it automatically:"
+		printf '%s\n' "  ${0} setup-startupscript"
 	fi
 }
 
@@ -206,7 +203,7 @@ fi
 if [ ! "$CMD" = "" ] && [ "$OPT_NO_VERSION_CHECK" = 0 ]
 then
 	# Check for nftables version
-	if [ $NFTABLES_INSTALLED_VERSION_INTEGER -lt $NFTABLES_REQUIRED_MIN_VERSION_INTEGER ]
+	if [ "$NFTABLES_INSTALLED_VERSION_INTEGER" -lt "$NFTABLES_REQUIRED_MIN_VERSION_INTEGER" ]
 	then
 		func_EXIT_ERROR 1 "ERROR: You need nftables >= $NFTABLES_REQUIRED_MIN_VERSION_STRING (current: $NFTABLES_INSTALLED_VERSION_STRING)."
 	fi
@@ -217,12 +214,12 @@ if [ ! "$OPT_NO_WARNINGS" = 1 ]
 then
 	if [ ! "$CMD" = "" ] && [ ! "$CMD" = "setup-crontab" ] && [ ! "$CMD" = "setup-startupscript" ] && [ ! "$CMD" = "update-permissions" ]
 	then
-		WARNINGS="`func_SHOW_WARNINGS`"
+		WARNINGS="$(func_SHOW_WARNINGS)"
 		
 		if [ ! "$WARNINGS" = "" ]
 		then
-			>&2 echo "Script stopped. You can turn off these checks using --no-warnings.\n"
-			func_EXIT_ERROR 1 "$WARNINGS"
+			func_PRINT_ERROR "Script stopped. You can turn off these checks using --no-warnings."
+			func_EXIT_WARNING 1 "$WARNINGS"
 		fi
 	fi
 fi
@@ -260,16 +257,15 @@ func_CMD_FLUSH_RULESET() {
 
 func_CMD_UPDATE() {
 	# Ensure default preset is enabled
-	if ! ls $ENABLED_PRESETS_PATH/*default* >/dev/null 2>&1
+	if ! ls "$ENABLED_PRESETS_PATH"/*default* >/dev/null 2>&1
 	then
 		func_EXIT_ERROR 1 "No default preset enabled."
 	fi
 
 	# Update only (reloads whitelist and blacklist)
-	if [ "`nft list ruleset`" = "" ]
+	if [ "$(nft list ruleset)" = "" ]
 	then
-		func_STDERR "No ruleset loaded. Run following command to reload the ruleset:"
-		func_EXIT_ERROR 1 "  ${0} full-reload"
+		func_EXIT_ERROR 1 "No ruleset loaded. Run following command to reload the ruleset:" "  ${0} full-reload"
 	fi
 
 	# Update whitelist and blacklist
@@ -286,7 +282,7 @@ func_CMD_UPDATE() {
 
 func_CMD_FULL_RELOAD() {
 	# Ensure default preset is enabled
-	if ! ls $ENABLED_PRESETS_PATH/*default* >/dev/null 2>&1
+	if ! ls "$ENABLED_PRESETS_PATH"/*default* >/dev/null 2>&1
 	then
 		func_EXIT_ERROR 1 "No default preset enabled."
 	fi
@@ -294,56 +290,59 @@ func_CMD_FULL_RELOAD() {
 	# Temporary ruleset file which is later
 	# used to atomically reload the ruleset
 	TMP_RULESET_FILE="$TMP_PATH/ruleset"
+	func_TRUNCATE "$TMP_RULESET_FILE"
 	
-	echo -n "" > $TMP_RULESET_FILE
-	
-	echo "#!/usr/sbin/nft -f" >> $TMP_RULESET_FILE
-	echo "flush ruleset" >> $TMP_RULESET_FILE
+	printf '%s\n' "#!/usr/sbin/nft -f" >> "$TMP_RULESET_FILE"
+	printf '%s\n' "flush ruleset" >> "$TMP_RULESET_FILE"
 
 	# Apply all presets
-	for PRESET in `ls $ENABLED_PRESETS_PATH`
+	for PRESET in $(ls "$ENABLED_PRESETS_PATH")
 	do
-		echo "" >> $TMP_RULESET_FILE
+		printf '\n' >> "$TMP_RULESET_FILE"
 	
 		# Apply replacements and append to ruleset file
-		func_APPLY_TEMPLATE_SUBSTITUTIONS "`cat $ENABLED_PRESETS_PATH/$PRESET`" >> $TMP_RULESET_FILE
+		func_APPLY_TEMPLATE_SUBSTITUTIONS "$(cat "$ENABLED_PRESETS_PATH/$PRESET")" >> "$TMP_RULESET_FILE"
 	done
 
 	# Re-generate whitelist and blacklist
-	if ! GENERATED=`func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE whitelist generate $IP_VERSIONS`
+	if ! GENERATED="$(func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE whitelist generate "$IP_VERSIONS")"
 	then
 		func_EXIT_ERROR 1 "ERROR: Failed to generate whitelist."
 	else
-		echo "$GENERATED" >> $TMP_RULESET_FILE
+		printf '%s\n' "$GENERATED" >> "$TMP_RULESET_FILE"
 	fi
 	
-	if ! GENERATED=`func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE blacklist generate $IP_VERSIONS`
+	if ! GENERATED="$(func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE blacklist generate "$IP_VERSIONS")"
 	then
 		func_EXIT_ERROR 1 "ERROR: Failed to generate blacklist."
 	else
-		echo "$GENERATED" >> $TMP_RULESET_FILE
+		printf '%s\n' "$GENERATED" >> "$TMP_RULESET_FILE"
 	fi
 	
 	# Append additional rules
-	cat $ADDITIONAL_RULES_FILE >> $TMP_RULESET_FILE
+	cat "$ADDITIONAL_RULES_FILE" >> "$TMP_RULESET_FILE"
 	
+	# We redirect this to STDERR instead of STDOUT just to make
+	# sure that one does not accidentally leaves that option
+	# turned on after testing.
 	if [ "$OPT_DRY_RUN" = 1 ]
 	then
-		>&2 echo "Generated ruleset can be found here:\n  $TMP_RULESET_FILE\n"
+		func_STDERR "Generated ruleset can be found here:"
+		func_STDERR "  $TMP_RULESET_FILE"
 		
-		CHECKRESULT="`2>&1 nft -c -f $TMP_RULESET_FILE`"
+		CHECKRESULT="$(2>&1 nft -c -f "$TMP_RULESET_FILE")"
 		
 		if [ ! "$CHECKRESULT" = "" ]
 		then
-			>&2 echo "DRY-RUN: ***FAILED***\n"
-			>&2 echo "$CHECKRESULT"
+			func_PRINT_ERROR "DRY-RUN: ***FAILED***"
+			func_STDERR "$CHECKRESULT"
 		else
-			>&2 echo "DRY-RUN: Success."
+			func_STDERR "DRY-RUN: Success."
 		fi
 	else
-		if nft -f $TMP_RULESET_FILE
+		if nft -f "$TMP_RULESET_FILE"
 		then
-			rm $TMP_RULESET_FILE
+			rm "$TMP_RULESET_FILE"
 		fi
 	fi
 }
@@ -351,28 +350,28 @@ func_CMD_FULL_RELOAD() {
 func_CMD_SETUP_CRONTAB() {
 	if func_USER_CRONTAB_EXISTS "$CRONTAB_LINE"
 	then
-		>&2 echo "Crontab already exists:"
-		>&2 echo "  " "`crontab -l 2>/dev/null | grep "$CRONTAB_COMMAND\$"`"
+		func_PRINT_ERROR "Crontab already exists:"
+		func_PRINT_ERROR "  $(crontab -l 2>/dev/null | grep "$CRONTAB_COMMAND\$")"
 	else
 		if func_ADD_USER_CRONTAB "$CRONTAB_LINE"
 		then
-			echo "Crontab for current user added:"
-			echo "  $CRONTAB_LINE"
+			func_STDOUT "Crontab for current user added:"
+			func_STDOUT "  $CRONTAB_LINE"
 		fi
 	fi
 }
 
 func_CMD_SETUP_STARTUP_SCRIPT() {
-	if [ -f $STARTUP_SCRIPT_PATH ]
+	if [ -f "$STARTUP_SCRIPT_PATH" ]
 	then
-		>&2 echo "Startup script already exists:"
-		>&2 echo "  $STARTUP_SCRIPT_PATH"
+		func_PRINT_ERROR "Startup script already exists:"
+		func_PRINT_ERROR "  $STARTUP_SCRIPT_PATH"
 	else
-		echo "$STARTUP_SCRIPT_CONTENT" > $STARTUP_SCRIPT_PATH
-		chmod 0755 $STARTUP_SCRIPT_PATH
+		printf '%s\n' "$STARTUP_SCRIPT_CONTENT" > "$STARTUP_SCRIPT_PATH"
+		chmod 0755 "$STARTUP_SCRIPT_PATH"
 		
-		echo "Startup script created:"
-		echo "  $STARTUP_SCRIPT_PATH"
+		func_STDOUT "Startup script created:"
+		func_STDOUT "  $STARTUP_SCRIPT_PATH"
 	fi
 }
 
@@ -430,7 +429,7 @@ case "$CMD" in
 	;;	
 	
 	*)
-		>&2 echo "`func_USAGE`"
+		func_STDOUT "$(func_USAGE)"
 		exit 1
     ;;
 	
@@ -439,7 +438,7 @@ esac
 # Delete .tmp dir if empty
 if [ ! "$OPT_DRY_RUN" = 1 ]
 then
-	rmdir $TMP_PATH 2>/dev/null
+	rmdir "$TMP_PATH" 2>/dev/null
 fi
 
 exit 0
