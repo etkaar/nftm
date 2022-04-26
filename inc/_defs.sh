@@ -30,35 +30,73 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 
 # If colors are enabled
 func_COLORS_ENABLED() {
+	# 0 in this context means true (and not false),
+	# because it is an exit code – not a boolean.
 	return 0
+}
+
+# Truncate file
+func_TRUNCATE() {
+	: > "$1"
+}
+
+# Message to STDOUT
+func_STDOUT() {
+	# Places a newline character after each word ("...")
+	printf '%s\n' "$@"
 }
 
 # Message to STDERR
 func_STDERR() {
-	# Subshell
-	(
-		MESSAGE="$1"
-		NO_LINE_BREAK="$2"
-		NO_COLORS="$3"
-		
-		if func_COLORS_ENABLED && [ "$NO_COLORS" != "1" ]
-		then
-			# Red
-			>&2 echo -n "\e[0;31m"
-		fi
-		
-		if [ "$NO_LINE_BREAK" = "1" ]
-		then
-			>&2 echo -n "$MESSAGE"
-		else
-			>&2 echo "$MESSAGE"
-		fi
-		
-		if func_COLORS_ENABLED && [ "$NO_COLORS" != "1" ]
-		then
-			>&2 echo -n "\e[m"
-		fi
-	)
+	>&2 printf '%s\n' "$@"
+}
+
+# Debug
+func_PRINT_DEBUG() {
+	if func_COLORS_ENABLED
+	then
+		# Magenta
+		printf "\e[0;35m"
+	fi
+	
+	func_STDOUT "$@"
+	
+	if func_COLORS_ENABLED
+	then
+		printf "\e[m"
+	fi
+}
+
+# Warning
+func_PRINT_WARNING() {
+	if func_COLORS_ENABLED
+	then
+		# Yellow
+		>&2 printf "\e[0;33m"
+	fi
+	
+	func_STDERR "$@"
+	
+	if func_COLORS_ENABLED
+	then
+		>&2 printf "\e[m"
+	fi
+}
+
+# Error
+func_PRINT_ERROR() {
+	if func_COLORS_ENABLED
+	then
+		# Red
+		>&2 printf "\e[0;31m"
+	fi
+	
+	func_STDERR "$@"
+	
+	if func_COLORS_ENABLED
+	then
+		>&2 printf "\e[m"
+	fi
 }
 
 # Prints error message to stderr and exit
@@ -66,10 +104,11 @@ func_EXIT_ERROR() {
 	# Subshell
 	(
 		EXIT_CODE="$1"
-		MESSAGE="$2"
-		NO_COLORS="$3"
 		
-		func_STDERR "$MESSAGE" 0 "$NO_COLORS"
+		# Remove first argument
+		shift
+		
+		func_PRINT_ERROR "$@"
 		
 		return "$EXIT_CODE"
 	)
@@ -77,7 +116,24 @@ func_EXIT_ERROR() {
 	exit "$?"
 }
 
-# Check if string is an unsigned integer (so both +1 and -1 is not considered as be valid)
+# Prints warning message to stderr and exit
+func_EXIT_WARNING() {
+	# Subshell
+	(
+		EXIT_CODE="$1"
+		
+		# Remove first argument
+		shift
+		
+		func_PRINT_WARNING "$@"
+		
+		return "$EXIT_CODE"
+	)
+	
+	exit "$?"
+}
+
+# Check if string is an unsigned integer (also +1 is not considered as be valid)
 func_IS_UNSIGNED_INTEGER() {
 	NUMBER="$1"
 	
@@ -116,12 +172,12 @@ func_SUBSTR_COUNT() {
 	SUBSTRING="$1"
 	STRING="$2"
 	
-	echo "$STRING" | awk -F"$SUBSTRING" '{print NF-1}'
+	printf '%s\n' "$STRING" | awk -F"$SUBSTRING" '{print NF-1}'
 }
 
 # Get nftables version integer
 func_GET_NFT_VERSION_INTEGER() {
-	func_VERSION_STRING_TO_INTEGER 3 $(echo "`nft --version`" | awk '{print $2}')
+	func_VERSION_STRING_TO_INTEGER 3 "$(printf '%s' "$(nft --version)" | awk '{print $2}')"
 }
 
 # Converts a version string such as "v0.9.0" to an integer to allow comparisons.
@@ -134,9 +190,9 @@ func_GET_NFT_VERSION_INTEGER() {
 func_VERSION_STRING_TO_INTEGER() {
 	# Remove whitespaces and the leading 'v'
 	MIN_MAX_DIGITS="$1"
-	VERSION_STRING=`echo "$2" | tr -d 'v[:space:]'`
+	VERSION_STRING="$(printf '%s\n' "$2" | tr -d 'v[:space:]')"
 	
-	echo "$VERSION_STRING" "$MIN_MAX_DIGITS" | awk '{
+	printf '%s %s\n' "$VERSION_STRING" "$MIN_MAX_DIGITS" | awk '{
 		digits_min = $2
 		digits_max = $2
 		digits_count = split($1, digits, ".")
@@ -160,6 +216,8 @@ func_VERSION_STRING_TO_INTEGER() {
 				exit 1
 			}
 			
+			# Power of operator: ^ is more portable than **, see:
+			# https://www.gnu.org/software/gawk/manual/html_node/Arithmetic-Ops.html
 			version_integer += (1000 ^ (digits_count - i)) * digits[i];
 		}
 		
@@ -171,8 +229,8 @@ func_VERSION_STRING_TO_INTEGER() {
 func_USER_CRONTAB_EXISTS() {
 	CRONTAB_LINE="$1"
 	
-	COMMAND=`echo "$CRONTAB_LINE" | cut -d' ' -f6-`
-	LINE=`crontab -l 2>/dev/null | grep "$COMMAND\$"`
+	COMMAND="$(printf '%s\n' "$CRONTAB_LINE" | cut -d' ' -f6-)"
+	LINE="$(crontab -l 2>/dev/null | grep "$COMMAND\$")"
 	
 	if [ ! "$LINE" = "" ]
 	then
@@ -185,7 +243,7 @@ func_USER_CRONTAB_EXISTS() {
 # Add user crontab if not exists
 func_ADD_USER_CRONTAB() {
 	CRONTAB_LINE="$1"
-	(crontab -l 2>/dev/null; echo "$CRONTAB_LINE") | crontab -
+	(crontab -l 2>/dev/null; printf '%s\n' "$CRONTAB_LINE") | crontab -
 }
 
 # This is a workaround, because neither <IFS=\'n'> or <IFS=$(printf '\n')> will work in Dash
@@ -198,4 +256,12 @@ func_SET_IFS() {
 # Don't forget to unset after using func_SET_IFS() if not executed within a subshell
 func_RESTORE_IFS() {
 	unset IFS
+}
+
+# Simple read in of a file, but comments are removed
+func_READ_CONFIG_FILE() {
+	CONFIG_FILE_PATH="$1"
+	CONTENT="$(cat "$CONFIG_FILE_PATH" | egrep -v "^\s*(#|$)")"
+	
+	printf '%s\n' "$CONTENT"
 }
