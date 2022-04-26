@@ -24,7 +24,10 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Change working directory
 ABSPATH="$(cd "$(dirname "$0")"; pwd -P)"
-cd $ABSPATH
+cd "$ABSPATH"
+
+# Import generic functions
+. ./inc/_defs.sh
 
 CONF_PATH="$ABSPATH/conf"
 PRESETS_PATH="$CONF_PATH/presets"
@@ -33,73 +36,69 @@ AVAILABLE_PRESETS_PATH="$PRESETS_PATH/available"
 ENABLED_PRESETS_PATH="$PRESETS_PATH/enabled"
 
 # Ensure only root runs this command
-if [ ! `whoami` = "root" ]
+if [ ! "$(whoami)" = "root" ]
 then
-	>&2 echo "You need to run this command as root (or use sudo)."
-	exit 1
+	func_EXIT_ERROR 1 "You need to run this command as root."
 fi
 
-# Command (enable custom minecraft, ...)
-CMD=$1
+# Command
+CMD="$1"
 
 case "$CMD" in
 
 	list)
 		# Number of presets
-		TOTAL_AVAILABLE_PRESETS=`ls $AVAILABLE_PRESETS_PATH | wc -l`
-		TOTAL_ENABLED_PRESETS=`ls $ENABLED_PRESETS_PATH | wc -l`
+		TOTAL_AVAILABLE_PRESETS="$(ls "$AVAILABLE_PRESETS_PATH" | wc -l)"
+		TOTAL_ENABLED_PRESETS="$(ls "$ENABLED_PRESETS_PATH" | wc -l)"
 		
-		echo "Presets"
-		echo "  Available: $TOTAL_AVAILABLE_PRESETS"
-		echo "  Enabled: $TOTAL_ENABLED_PRESETS"
+		func_STDOUT "Presets"
+		func_STDOUT "  Available: $TOTAL_AVAILABLE_PRESETS"
+		func_STDOUT "  Enabled: $TOTAL_ENABLED_PRESETS"
 
 		# Show all available presets
-		if [ $TOTAL_AVAILABLE_PRESETS -gt 0 ]
+		if [ "$TOTAL_AVAILABLE_PRESETS" -gt 0 ]
 		then
-			echo "\nAvailable presets"
+			func_STDOUT "" "Available presets"
 			
-			for PRESET in `ls $AVAILABLE_PRESETS_PATH`
+			for PRESET in $(ls "$AVAILABLE_PRESETS_PATH")
 			do
-				echo "  $PRESET"
+				func_STDOUT "  $PRESET"
 			done
 			
-			echo ""
-			echo "  Note: Use \"${0} enable custom [name]\" to enable custom preset."
+			func_STDOUT ""
+			func_STDOUT "  Note: Use \"${0} enable custom [name]\" to enable custom preset."
 		fi
 		
 		# Show all enabled presets
-		if [ $TOTAL_ENABLED_PRESETS -gt 0 ]
+		if [ "$TOTAL_ENABLED_PRESETS" -gt 0 ]
 		then
-			echo "\nEnabled presets"
+			func_STDOUT "" "Enabled presets"
 			
-			for PRESET in `ls $ENABLED_PRESETS_PATH`
+			for PRESET in $(ls "$ENABLED_PRESETS_PATH")
 			do
-				echo "  $PRESET"
+				func_STDOUT "  $PRESET"
 			done
 		fi
 	;;
 	
 	status|enable|disable)
 		# Preset type
-		PRESET_TYPE=$2
+		PRESET_TYPE="$2"
 		
 		if [ "$PRESET_TYPE" = "" ]
 		then
-			>&2 echo "No preset type provided."
-			exit 1
+			func_EXIT_ERROR 1 "No preset type provided."
 		elif [ ! "$PRESET_TYPE" = "default" ] && [ ! "$PRESET_TYPE" = "custom" ]
 		then
-			>&2 echo "Invalid preset type '$PRESET_TYPE'."
-			exit 1
+			func_EXIT_ERROR 1 "Invalid preset type '$PRESET_TYPE'."
 		fi
 		
 		# Preset name
-		PRESET_NAME=$3
+		PRESET_NAME="$3"
 		
 		if [ "$PRESET_NAME" = "" ]
 		then
-			>&2 echo "No preset name provided."
-			exit 1
+			func_EXIT_ERROR 1 "No preset name provided."
 		fi
 	
 		# Prefix
@@ -121,18 +120,17 @@ case "$CMD" in
 		if [ "$CMD" = "status" ]
 		then
 		
-			if [ ! -f $AVAILABLE_PRESET_PATH ]
+			if [ ! -f "$AVAILABLE_PRESET_PATH" ]
 			then
-				>&2 echo "Preset '$PRESET_FILENAME' was not found."
-				exit 2
+				func_EXIT_ERROR 2 "Preset '$PRESET_FILENAME' was not found."
 			fi
 		
-			if [ -f $ENABLED_PRESET_PATH ]
+			if [ -f "$ENABLED_PRESET_PATH" ]
 			then
-				echo "Preset '$PRESET_FILENAME' is enabled."
+				func_STDOUT "Preset '$PRESET_FILENAME' is enabled."
 				exit 0
 			else
-				echo "Preset '$PRESET_FILENAME' is disabled."
+				func_STDOUT "Preset '$PRESET_FILENAME' is disabled."
 				exit 1
 			fi
 		
@@ -142,35 +140,31 @@ case "$CMD" in
 		if [ "$CMD" = "enable" ]
 		then
 		
-			if [ ! -f $AVAILABLE_PRESET_PATH ]
+			if [ ! -f "$AVAILABLE_PRESET_PATH" ]
 			then
-				>&2 echo "Preset '$PRESET_FILENAME' was not found."
-				exit 1
+				func_EXIT_ERROR 1 "Preset '$PRESET_FILENAME' was not found."
 			fi
 			
-			if [ -f $ENABLED_PRESET_PATH ]
+			if [ -f "$ENABLED_PRESET_PATH" ]
 			then
-				>&2 echo "Preset '$PRESET_FILENAME' is already enabled."
-				exit 1
+				func_EXIT_ERROR 1 "Preset '$PRESET_FILENAME' is already enabled."
 			fi
 			
 			# Prevent enabling of multiple default presets
 			if [ "$PRESET_TYPE" = "default" ]
 			then
-				if ls $ENABLED_PRESETS_PATH/${PREFIX}* >/dev/null 2>&1
+				if ls "$ENABLED_PRESETS_PATH"/${PREFIX}* >/dev/null 2>&1
 				then
-					>&2 echo "Cannot enable multiple default presets."
-					exit 1
+					func_EXIT_ERROR 1 "Cannot enable multiple default presets."
 				fi
 			fi
 			
 		elif [ "$CMD" = "disable" ]
 		then
 			
-			if [ ! -f $ENABLED_PRESET_PATH ]
+			if [ ! -f "$ENABLED_PRESET_PATH" ]
 			then
-				>&2 echo "Preset '$PRESET_FILENAME' is not enabled."
-				exit 1
+				func_EXIT_ERROR 1 "Preset '$PRESET_FILENAME' is not enabled."
 			fi
 			
 		fi
@@ -179,24 +173,24 @@ case "$CMD" in
 		if [ "$CMD" = "enable" ]
 		then
 		
-			if ln -s $AVAILABLE_PRESET_PATH $ENABLED_PRESET_PATH
+			if ln -s "$AVAILABLE_PRESET_PATH" "$ENABLED_PRESET_PATH"
 			then
-				echo "Enabled preset '$PRESET_FILENAME'."
+				func_STDOUT "Enabled preset '$PRESET_FILENAME'."
 			fi
 			
 		elif [ "$CMD" = "disable" ]
 		then
 		
-			if rm $ENABLED_PRESET_PATH
+			if rm "$ENABLED_PRESET_PATH"
 			then
-				echo "Disabled preset '$PRESET_FILENAME'."
+				func_STDOUT "Disabled preset '$PRESET_FILENAME'."
 			fi
 			
 		fi
 	;;
 	
 	*)
-		>&2 echo "Usage: ${0} {list|status [preset]|enable [preset]|disable [preset]}"
+		func_STDOUT "Usage: ${0} {list|status [preset]|enable [preset]|disable [preset]}"
 		exit 1
     ;;
 	
