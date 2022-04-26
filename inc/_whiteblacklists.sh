@@ -25,10 +25,10 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 func_GET_CURRENT_LIST_LINE() {
 	if [ "$TYPE" = "whitelist" ]
 	then
-		echo "$HOSTNAME_SUBNET_OR_ADDRESS : enabled : $IS_ENABLED, protocol : $PROTOCOL, ports : {$PORTS}"
+		printf '%s\n' "$HOSTNAME_SUBNET_OR_ADDRESS : enabled : $IS_ENABLED, protocol : $PROTOCOL, ports : {$PORTS}"
 	elif [ "$TYPE" = "blacklist" ]
 	then
-		echo "$HOSTNAME_SUBNET_OR_ADDRESS : enabled : $IS_ENABLED"
+		printf '%s\n' "$HOSTNAME_SUBNET_OR_ADDRESS : enabled : $IS_ENABLED"
 	fi
 }
 
@@ -36,7 +36,7 @@ func_GET_CURRENT_LIST_LINE() {
 func_HOST_IS_SUBNET() {
 	HOSTNAME_SUBNET_OR_ADDRESS="$1"
 	
-	CHECK=`printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | grep '/'`
+	CHECK="$(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | grep '/')"
 	
 	if [ "$CHECK" = "" ]
 	then
@@ -52,7 +52,7 @@ func_IS_IPV4_ADDRESS() {
 	HOSTNAME_SUBNET_OR_ADDRESS="$1"
 	
 	# We need exactly three (3) dots (.)
-	COUNT=`func_SUBSTR_COUNT "." "$HOSTNAME_SUBNET_OR_ADDRESS"`
+	COUNT="$(func_SUBSTR_COUNT "." "$HOSTNAME_SUBNET_OR_ADDRESS")"
 	
 	if [ ! "$COUNT" = 3 ]
 	then
@@ -64,7 +64,7 @@ func_IS_IPV4_ADDRESS() {
 	# Groups are separated by a dot (.)
 	func_SET_IFS '\n'
 	
-	for GROUP in `printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/\./\n/g"`
+	for GROUP in $(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/\./\n/g")
 	do
 		# Check if group is an integer number
 		if ! func_IS_UNSIGNED_INTEGER "$GROUP"
@@ -95,19 +95,19 @@ func_GET_IPV4() {
 	# Temporarily remove CIDR notation for DNS lookup
 	if func_HOST_IS_SUBNET "$HOSTNAME_SUBNET_OR_ADDRESS"
 	then
-		CIDR_NOTATION=`printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $2}'`
-		HOSTNAME_SUBNET_OR_ADDRESS=`printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}'`
+		CIDR_NOTATION="$(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $2}')"
+		HOSTNAME_SUBNET_OR_ADDRESS="$(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}')"
 	fi
 	
-	DNS_LOOKUP=`getent ahostsv4 "$HOSTNAME_SUBNET_OR_ADDRESS" | grep ' STREAM' | awk '{print $1}'`
+	DNS_LOOKUP="$(getent ahostsv4 "$HOSTNAME_SUBNET_OR_ADDRESS" | grep ' STREAM' | awk '{print $1}')"
 	
 	if [ ! "$DNS_LOOKUP" = "" ]
 	then
 		if [ "$RETURN_CIDR_NOTATION" = 1 ]
 		then
-			echo "$DNS_LOOKUP/$CIDR_NOTATION"
+			printf '%s\n' "$DNS_LOOKUP/$CIDR_NOTATION"
 		else
-			echo "$DNS_LOOKUP"
+			printf '%s\n' "$DNS_LOOKUP"
 		fi
 	fi
 }
@@ -118,7 +118,7 @@ func_IS_IPV6_ADDRESS() {
 	HOSTNAME_SUBNET_OR_ADDRESS="$1"
 	
 	# We need at least two colons (:) but not more than 8
-	COUNT=`func_SUBSTR_COUNT ":" "$HOSTNAME_SUBNET_OR_ADDRESS"`
+	COUNT="$(func_SUBSTR_COUNT ":" "$HOSTNAME_SUBNET_OR_ADDRESS")"
 	
 	if [ "$COUNT" -lt 2 ] || [ "$COUNT" -gt 8 ]
 	then
@@ -130,7 +130,7 @@ func_IS_IPV6_ADDRESS() {
 	# Groups are separated by colon (:)
 	func_SET_IFS '\n'
 	
-	for GROUP in `printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/:/\n/g"`
+	for GROUP in $(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}' | sed "s/:/\n/g")
 	do
 		# Validate range (not more than 4 bytes)
 		if [ ${#GROUP} -gt 4 ]
@@ -162,19 +162,19 @@ func_GET_IPV6() {
 	# Temporarily remove CIDR notation for DNS lookup
 	if func_HOST_IS_SUBNET "$HOSTNAME_SUBNET_OR_ADDRESS"
 	then
-		CIDR_NOTATION=`printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $2}'`
-		HOSTNAME_SUBNET_OR_ADDRESS=`printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}'`
+		CIDR_NOTATION="$(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $2}')"
+		HOSTNAME_SUBNET_OR_ADDRESS="$(printf '%s' "$HOSTNAME_SUBNET_OR_ADDRESS" | awk -F'/' '{print $1}')"
 	fi
 	
-	DNS_LOOKUP=`getent ahostsv6 "$HOSTNAME_SUBNET_OR_ADDRESS" | grep ' STREAM' | grep -v '::ffff:' | awk '{print $1}'`
+	DNS_LOOKUP="$(getent ahostsv6 "$HOSTNAME_SUBNET_OR_ADDRESS" | grep ' STREAM' | grep -v '::ffff:' | awk '{print $1}')"
 	
 	if [ ! "$DNS_LOOKUP" = "" ]
 	then
 		if [ "$RETURN_CIDR_NOTATION" = 1 ]
 		then
-			echo "$DNS_LOOKUP/$CIDR_NOTATION"
+			printf '%s\n' "$DNS_LOOKUP/$CIDR_NOTATION"
 		else
-			echo "$DNS_LOOKUP"
+			printf '%s\n' "$DNS_LOOKUP"
 		fi
 	fi
 }
@@ -183,7 +183,7 @@ func_GET_IPV6() {
 # See: https://marc.info/?l=netfilter&m=158575148505527&w=2
 func_ARE_CONCATENATED_SETS_SUPPORTED() {
 	NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_STRING="0.9.4"
-	NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_INTEGER="`func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_STRING"`"
+	NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_INTEGER="$(func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_STRING")"
 	
 	if [ "$NFTABLES_INSTALLED_VERSION_INTEGER" -lt "$NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_INTEGER" ]
 	then
@@ -207,8 +207,8 @@ func_APPLY_TEMPLATE_SUBSTITUTIONS() {
 		INTERVAL_FLAG_IF_SUPPORTED=""
 	fi
 	
-	TEMPLATE=`echo "$TEMPLATE" | sed "s/__INTERVAL_FLAG_IF_SUPPORTED_/$INTERVAL_FLAG_IF_SUPPORTED/g"`
-	echo "$TEMPLATE"
+	TEMPLATE="$(printf '%s\n' "$TEMPLATE" | sed "s/__INTERVAL_FLAG_IF_SUPPORTED_/$INTERVAL_FLAG_IF_SUPPORTED/g")"
+	printf '%s\n' "$TEMPLATE"
 }
 
 # Create elements list for nft set
@@ -225,23 +225,23 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 	# Iterate through list
 	for LINE in $LIST_FILE_CONTENT
 	do
-		HOSTNAME_SUBNET_OR_ADDRESS=`printf '%s' "$LINE" | awk '{print $1}'`
-		IS_ENABLED=`printf '%s' "$LINE" | awk '{print $2}'`
-		PROTOCOL=`printf '%s' "$LINE" | awk '{print $3}'`
-		PORTS=`printf '%s' "$LINE" | awk '{print $4}'`		
+		HOSTNAME_SUBNET_OR_ADDRESS="$(printf '%s' "$LINE" | awk '{print $1}')"
+		IS_ENABLED="$(printf '%s' "$LINE" | awk '{print $2}')"
+		PROTOCOL="$(printf '%s' "$LINE" | awk '{print $3}')"
+		PORTS="$(printf '%s' "$LINE" | awk '{print $4}')"
 		
 		if [ "$TYPE" = "whitelist" ]
 		then
 			if [ "$HOSTNAME_SUBNET_OR_ADDRESS" = "" ] || [ "$IS_ENABLED" = "" ] || [ "$PROTOCOL" = "" ] || [ "$PORTS" = "" ]
 			then
-				func_EXIT_ERROR 1 "Syntax error in whitelist:\n  `func_GET_CURRENT_LIST_LINE`"
+				func_EXIT_ERROR 1 "Syntax error in whitelist:" "  $(func_GET_CURRENT_LIST_LINE)"
 			fi
 			
 			if ! func_ARE_CONCATENATED_SETS_SUPPORTED
 			then
 				if func_HOST_IS_SUBNET "$HOSTNAME_SUBNET_OR_ADDRESS"
 				then
-					func_EXIT_ERROR 1 "Subnets in whitelists are currently not supported (needs nftables >= $NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_STRING):\n  `func_GET_CURRENT_LIST_LINE`"
+					func_EXIT_ERROR 1 "Subnets in whitelists are currently not supported (needs nftables >= $NFTABLES_CONCATENATION_SUPPORT_REQUIRED_MIN_VERSION_STRING):" "  $(func_GET_CURRENT_LIST_LINE)"
 				else
 					RETURN_CIDR_NOTATION=0
 				fi
@@ -252,16 +252,16 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		then
 			if [ "$HOSTNAME_SUBNET_OR_ADDRESS" = "" ] || [ "$IS_ENABLED" = "" ]
 			then
-				func_EXIT_ERROR 1 "Syntax error in blacklist:\n  `func_GET_CURRENT_LIST_LINE`"
+				func_EXIT_ERROR 1 "Syntax error in blacklist:" "  $(func_GET_CURRENT_LIST_LINE)"
 			fi
 			
 			RETURN_CIDR_NOTATION=1
 		fi
 		
 		# Please do not use multiple protocols (not 'tcp,udp' but two lines for each protocol)
-		if [ ! "`printf '%s' "$PROTOCOL" | grep ','`" = "" ]
+		if [ ! "$(printf '%s' "$PROTOCOL" | grep ',')" = "" ]
 		then
-			func_EXIT_ERROR 1 "Syntax error in whitelist (use of multiple protocols):\n  `func_GET_CURRENT_LIST_LINE`"
+			func_EXIT_ERROR 1 "Syntax error in whitelist (use of multiple protocols):" "  $(func_GET_CURRENT_LIST_LINE)"
 		fi
 		
 		# Only if rule is enabled
@@ -281,7 +281,7 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		then
 			if [ "$OPT_DEBUG" = 1 ]
 			then
-				>&2 echo "DEBUG: Ignoring IPv6 address '$HOSTNAME_SUBNET_OR_ADDRESS' for IPv4 whitelist:\n  `func_GET_CURRENT_LIST_LINE`"
+				func_PRINT_DEBUG "DEBUG: Ignoring IPv6 address '$HOSTNAME_SUBNET_OR_ADDRESS' for IPv4 whitelist:" "  $(func_GET_CURRENT_LIST_LINE)"
 			fi
 			
 			continue
@@ -289,7 +289,7 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		then
 			if [ "$OPT_DEBUG" = 1 ]
 			then
-				>&2 echo "DEBUG: Ignoring IPv4 address '$HOSTNAME_SUBNET_OR_ADDRESS' for IPv6 whitelist:\n  `func_GET_CURRENT_LIST_LINE`"
+				func_PRINT_DEBUG "DEBUG: Ignoring IPv4 address '$HOSTNAME_SUBNET_OR_ADDRESS' for IPv6 whitelist:" "  $(func_GET_CURRENT_LIST_LINE)"
 			fi
 			
 			continue
@@ -298,10 +298,10 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		# Get IPv4/6 address from hostname *or* returns the IP address if actually no hostname was given
 		if [ "$IP_VERSION" = 4 ]
 		then
-			IP_ADDR=`func_GET_IPV4 $HOSTNAME_SUBNET_OR_ADDRESS $RETURN_CIDR_NOTATION`
+			IP_ADDR="$(func_GET_IPV4 "$HOSTNAME_SUBNET_OR_ADDRESS" "$RETURN_CIDR_NOTATION")"
 		elif [ "$IP_VERSION" = 6 ]
 		then
-			IP_ADDR=`func_GET_IPV6 $HOSTNAME_SUBNET_OR_ADDRESS $RETURN_CIDR_NOTATION`
+			IP_ADDR="$(func_GET_IPV6 "$HOSTNAME_SUBNET_OR_ADDRESS" "$RETURN_CIDR_NOTATION")"
 		fi
 		
 		# Validate that the lookup was successful (here we need to request both the IPv4 and IPv6 address, so it is normal
@@ -310,7 +310,7 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		then
 			if [ ! "$OPT_NO_WARNINGS" = 1 ]
 			then
-				>&2 echo "WARNING: IPv${IP_VERSION}-DNS lookup for '$HOSTNAME_SUBNET_OR_ADDRESS' failed:\n  `func_GET_CURRENT_LIST_LINE`"
+				func_PRINT_WARNING "WARNING: IPv${IP_VERSION}-DNS lookup for '$HOSTNAME_SUBNET_OR_ADDRESS' failed:" "  $(func_GET_CURRENT_LIST_LINE)"
 			fi
 			
 			continue
@@ -320,15 +320,15 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		if [ "$TYPE" = "whitelist" ]
 		then
 			# Allow multiple ports
-			PORT_LIST=`printf '%s' "$PORTS" | tr "," "\n"`
+			PORT_LIST="$(printf '%s' "$PORTS" | tr "," "\n")"
 
 			for PORT in $PORT_LIST
 			do
-				echo "			$PORT . $IP_ADDR,"
+				printf '%s\n' "			$PORT . $IP_ADDR,"
 			done
 		elif [ "$TYPE" = "blacklist" ]
 		then
-			echo "			$IP_ADDR,"
+			printf '%s\n' "			$IP_ADDR,"
 		fi
 	done
 	unset IFS
@@ -355,9 +355,7 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 	# IPv4 or IPv6 only or both?
 	if [ ! "$IP_VERSIONS" = "all" ] && [ ! "$IP_VERSIONS" = 4 ] && [ ! "$IP_VERSIONS" = 6 ]
 	then
-		>&2 echo "You need to specify one or multiple Internet Protocol Versions."
-		>&2 echo "  Usage: ${0} $TYPE $ACTION {all|4|6}"
-		exit 1
+		func_EXIT_ERROR 1 "You need to specify one or multiple Internet Protocol Versions." "  Usage: ${0} $TYPE $ACTION {all|4|6}"
 	fi
 	
 	# Name of whitelist/blacklist sets
@@ -383,23 +381,23 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 	# used to atomically reload the ruleset
 	TMP_RULESET_FILE="$TMP_PATH/table.$NFT_LIST_NAME_PREFIX"
 	
-	echo -n "" > $TMP_RULESET_FILE
+	printf "" > "$TMP_RULESET_FILE"
 	
 	# In case we only want to reload the whitelist and not
 	# all of the firewall rules, we need to flush the whitelist
 	if [ "$ACTION" = "update" ]
 	then
-		echo "#!/usr/sbin/nft -f" >> $TMP_RULESET_FILE
+		printf '%s\n' "#!/usr/sbin/nft -f" >> "$TMP_RULESET_FILE"
 		
 		if [ "$IP_VERSIONS" = 4 ] || [ "$IP_VERSIONS" = "all" ]
 		then
 			if [ "$TYPE" = "whitelist" ]
 			then
-				echo "flush set inet filter $NFT_LIST_NAME_IPV4_TCP" >> $TMP_RULESET_FILE
-				echo "flush set inet filter $NFT_LIST_NAME_IPV4_UDP" >> $TMP_RULESET_FILE
+				printf '%s\n' "flush set inet filter $NFT_LIST_NAME_IPV4_TCP" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "flush set inet filter $NFT_LIST_NAME_IPV4_UDP" >> "$TMP_RULESET_FILE"
 			elif [ "$TYPE" = "blacklist" ]
 			then
-				echo "flush set inet filter $NFT_LIST_NAME_IPV4" >> $TMP_RULESET_FILE
+				printf '%s\n' "flush set inet filter $NFT_LIST_NAME_IPV4" >> "$TMP_RULESET_FILE"
 			fi
 		fi
 		
@@ -407,29 +405,29 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		then
 			if [ "$TYPE" = "whitelist" ]
 			then
-				echo "flush set inet filter $NFT_LIST_NAME_IPV6_TCP" >> $TMP_RULESET_FILE
-				echo "flush set inet filter $NFT_LIST_NAME_IPV6_UDP" >> $TMP_RULESET_FILE
+				printf '%s\n' "flush set inet filter $NFT_LIST_NAME_IPV6_TCP" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "flush set inet filter $NFT_LIST_NAME_IPV6_UDP" >> "$TMP_RULESET_FILE"
 			elif [ "$TYPE" = "blacklist" ]
 			then
-				echo "flush set inet filter $NFT_LIST_NAME_IPV6" >> $TMP_RULESET_FILE
+				printf '%s\n' "flush set inet filter $NFT_LIST_NAME_IPV6" >> "$TMP_RULESET_FILE"
 			fi
 		fi
 	fi
 	
 	# Create our elements lists for the sets at first
-	LIST_FILE_CONTENT=`cat "$LIST_FILE_PATH" | egrep -v "^\s*(#|$)"`
+	LIST_FILE_CONTENT="$(func_READ_CONFIG_FILE "$LIST_FILE_PATH")"
 	
 	if [ "$TYPE" = "whitelist" ]
 	then
 	
 		if [ "$IP_VERSIONS" = 4 ] || [ "$IP_VERSIONS" = "all" ]
 		then
-			if ! ELEMENTS_IPV4_TCP=`func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 4 tcp accept`
+			if ! ELEMENTS_IPV4_TCP="$(func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 4 tcp accept)"
 			then
 				exit 1
 			fi
 			
-			if ! ELEMENTS_IPV4_UDP=`func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 4 udp accept`
+			if ! ELEMENTS_IPV4_UDP="$(func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 4 udp accept)"
 			then
 				exit 1
 			fi
@@ -437,12 +435,12 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		
 		if [ "$IP_VERSIONS" = 6 ] || [ "$IP_VERSIONS" = "all" ]
 		then
-			if ! ELEMENTS_IPV6_TCP=`func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 6 tcp accept`
+			if ! ELEMENTS_IPV6_TCP="$(func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 6 tcp accept)"
 			then
 				exit 1
 			fi
 			
-			if ! ELEMENTS_IPV6_UDP=`func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 6 udp accept`
+			if ! ELEMENTS_IPV6_UDP="$(func_CREATE_SET_ELEMENTS_FROM_FILE whitelist "$LIST_FILE_CONTENT" 6 udp accept)"
 			then
 				exit 1
 			fi
@@ -453,7 +451,7 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		
 		if [ "$IP_VERSIONS" = 4 ] || [ "$IP_VERSIONS" = "all" ]
 		then
-			if ! ELEMENTS_IPV4=`func_CREATE_SET_ELEMENTS_FROM_FILE blacklist "$LIST_FILE_CONTENT" 4 "" drop`
+			if ! ELEMENTS_IPV4="$(func_CREATE_SET_ELEMENTS_FROM_FILE blacklist "$LIST_FILE_CONTENT" 4 "" drop)"
 			then
 				exit 1
 			fi
@@ -461,7 +459,7 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		
 		if [ "$IP_VERSIONS" = 6 ] || [ "$IP_VERSIONS" = "all" ]
 		then
-			if ! ELEMENTS_IPV6=`func_CREATE_SET_ELEMENTS_FROM_FILE blacklist "$LIST_FILE_CONTENT" 6 "" drop`
+			if ! ELEMENTS_IPV6="$(func_CREATE_SET_ELEMENTS_FROM_FILE blacklist "$LIST_FILE_CONTENT" 6 "" drop)"
 			then
 				exit 1
 			fi
@@ -470,7 +468,7 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 	fi
 	
 	# Open table
-	echo "table inet filter {" >> $TMP_RULESET_FILE
+	printf '%s\n' "table inet filter {" >> "$TMP_RULESET_FILE"
 	
 	if [ "$TYPE" = "whitelist" ]
 	then
@@ -480,42 +478,42 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		then
 		
 			# TCP
-			echo "	set ${NFT_LIST_NAME_IPV4_TCP} {" >> $TMP_RULESET_FILE
+			printf '%s\n' "	set ${NFT_LIST_NAME_IPV4_TCP} {" >> "$TMP_RULESET_FILE"
 			
 			if func_ARE_CONCATENATED_SETS_SUPPORTED
 			then
-				echo "		type inet_service . ipv4_addr; flags interval;" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv4_addr; flags interval;" >> "$TMP_RULESET_FILE"
 			else
-				echo "		type inet_service . ipv4_addr" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv4_addr" >> "$TMP_RULESET_FILE"
 			fi
 			
 			if [ ! "$ELEMENTS_IPV4_TCP" = "" ]
 			then
-				echo "		elements = {" >> $TMP_RULESET_FILE
-				echo "$ELEMENTS_IPV4_TCP" >> $TMP_RULESET_FILE
-				echo "		}" >> $TMP_RULESET_FILE
+				printf '%s\n' "		elements = {" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "$ELEMENTS_IPV4_TCP" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "		}" >> "$TMP_RULESET_FILE"
 			fi
 			
-			echo "	}" >> $TMP_RULESET_FILE
+			printf '%s\n' "	}" >> "$TMP_RULESET_FILE"
 			
 			# UDP
-			echo "	set ${NFT_LIST_NAME_IPV4_UDP} {" >> $TMP_RULESET_FILE
+			printf '%s\n' "	set ${NFT_LIST_NAME_IPV4_UDP} {" >> "$TMP_RULESET_FILE"
 
 			if func_ARE_CONCATENATED_SETS_SUPPORTED
 			then
-				echo "		type inet_service . ipv4_addr; flags interval;" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv4_addr; flags interval;" >> "$TMP_RULESET_FILE"
 			else
-				echo "		type inet_service . ipv4_addr" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv4_addr" >> "$TMP_RULESET_FILE"
 			fi			
 			
 			if [ ! "$ELEMENTS_IPV4_UDP" = "" ]
 			then
-				echo "		elements = {" >> $TMP_RULESET_FILE
-				echo "$ELEMENTS_IPV4_UDP" >> $TMP_RULESET_FILE
-				echo "		}" >> $TMP_RULESET_FILE
+				printf '%s\n' "		elements = {" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "$ELEMENTS_IPV4_UDP" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "		}" >> "$TMP_RULESET_FILE"
 			fi
 			
-			echo "	}" >> $TMP_RULESET_FILE
+			printf '%s\n' "	}" >> "$TMP_RULESET_FILE"
 			
 		fi
 		
@@ -524,42 +522,42 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		then
 		
 			# TCP
-			echo "	set ${NFT_LIST_NAME_IPV6_TCP} {" >> $TMP_RULESET_FILE
+			printf '%s\n' "	set ${NFT_LIST_NAME_IPV6_TCP} {" >> "$TMP_RULESET_FILE"
 			
 			if func_ARE_CONCATENATED_SETS_SUPPORTED
 			then
-				echo "		type inet_service . ipv6_addr; flags interval;" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv6_addr; flags interval;" >> "$TMP_RULESET_FILE"
 			else
-				echo "		type inet_service . ipv6_addr" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv6_addr" >> "$TMP_RULESET_FILE"
 			fi
 			
 			if [ ! "$ELEMENTS_IPV6_TCP" = "" ]
 			then
-				echo "		elements = {" >> $TMP_RULESET_FILE
-				echo "$ELEMENTS_IPV6_TCP" >> $TMP_RULESET_FILE
-				echo "		}" >> $TMP_RULESET_FILE
+				printf '%s\n' "		elements = {" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "$ELEMENTS_IPV6_TCP" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "		}" >> "$TMP_RULESET_FILE"
 			fi
 			
-			echo "	}" >> $TMP_RULESET_FILE
+			printf '%s\n' "	}" >> "$TMP_RULESET_FILE"
 			
 			# UDP
-			echo "	set ${NFT_LIST_NAME_IPV6_UDP} {" >> $TMP_RULESET_FILE
+			printf '%s\n' "	set ${NFT_LIST_NAME_IPV6_UDP} {" >> "$TMP_RULESET_FILE"
 
 			if func_ARE_CONCATENATED_SETS_SUPPORTED
 			then
-				echo "		type inet_service . ipv6_addr; flags interval;" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv6_addr; flags interval;" >> "$TMP_RULESET_FILE"
 			else
-				echo "		type inet_service . ipv6_addr" >> $TMP_RULESET_FILE
+				printf '%s\n' "		type inet_service . ipv6_addr" >> "$TMP_RULESET_FILE"
 			fi
 			
 			if [ ! "$ELEMENTS_IPV6_UDP" = "" ]
 			then
-				echo "		elements = {" >> $TMP_RULESET_FILE
-				echo "$ELEMENTS_IPV6_UDP" >> $TMP_RULESET_FILE
-				echo "		}" >> $TMP_RULESET_FILE
+				printf '%s\n' "		elements = {" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "$ELEMENTS_IPV6_UDP" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "		}" >> "$TMP_RULESET_FILE"
 			fi
 			
-			echo "	}" >> $TMP_RULESET_FILE
+			printf '%s\n' "	}" >> "$TMP_RULESET_FILE"
 		
 		fi
 	
@@ -570,17 +568,17 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		if [ "$IP_VERSIONS" = 4 ] || [ "$IP_VERSIONS" = "all" ]
 		then
 		
-			echo "	set ${NFT_LIST_NAME_IPV4} {" >> $TMP_RULESET_FILE
-			echo "		type ipv4_addr; flags interval;" >> $TMP_RULESET_FILE
+			printf '%s\n' "	set ${NFT_LIST_NAME_IPV4} {" >> "$TMP_RULESET_FILE"
+			printf '%s\n' "		type ipv4_addr; flags interval;" >> "$TMP_RULESET_FILE"
 			
 			if [ ! "$ELEMENTS_IPV4" = "" ]
 			then
-				echo "		elements = {" >> $TMP_RULESET_FILE
-				echo "$ELEMENTS_IPV4" >> $TMP_RULESET_FILE
-				echo "		}" >> $TMP_RULESET_FILE
+				printf '%s\n' "		elements = {" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "$ELEMENTS_IPV4" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "		}" >> "$TMP_RULESET_FILE"
 			fi
 			
-			echo "	}" >> $TMP_RULESET_FILE
+			printf '%s\n' "	}" >> "$TMP_RULESET_FILE"
 			
 		fi
 		
@@ -588,36 +586,36 @@ func_CREATE_WHITE_OR_BLACKLIST_TEMPLATE() {
 		if [ "$IP_VERSIONS" = 6 ] || [ "$IP_VERSIONS" = "all" ]
 		then
 		
-			echo "	set ${NFT_LIST_NAME_IPV6} {" >> $TMP_RULESET_FILE
-			echo "		type ipv6_addr; flags interval;" >> $TMP_RULESET_FILE
+			printf '%s\n' "	set ${NFT_LIST_NAME_IPV6} {" >> "$TMP_RULESET_FILE"
+			printf '%s\n' "		type ipv6_addr; flags interval;" >> "$TMP_RULESET_FILE"
 			
 			if [ ! "$ELEMENTS_IPV6" = "" ]
 			then
-				echo "		elements = {" >> $TMP_RULESET_FILE
-				echo "$ELEMENTS_IPV6" >> $TMP_RULESET_FILE
-				echo "		}" >> $TMP_RULESET_FILE
+				printf '%s\n' "		elements = {" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "$ELEMENTS_IPV6" >> "$TMP_RULESET_FILE"
+				printf '%s\n' "		}" >> "$TMP_RULESET_FILE"
 			fi
 			
-			echo "	}" >> $TMP_RULESET_FILE
+			printf '%s\n' "	}" >> "$TMP_RULESET_FILE"
 		
 		fi
 	
 	fi
 	
 	# Close table
-	echo "}" >> $TMP_RULESET_FILE
+	printf '%s\n' "}" >> "$TMP_RULESET_FILE"
 	
 	if [ "$ACTION" = "update" ]
 	then
-		if nft -f $TMP_RULESET_FILE
+		if nft -f "$TMP_RULESET_FILE"
 		then
-			echo "Sets for '$NFT_LIST_NAME_PREFIX' atomically updated."
+			func_STDOUT "Sets for '$NFT_LIST_NAME_PREFIX' atomically updated."
 		else
-			cat $TMP_RULESET_FILE
+			cat "$TMP_RULESET_FILE"
 		fi
 	else
-		cat $TMP_RULESET_FILE
+		cat "$TMP_RULESET_FILE"
 	fi
 	
-	rm $TMP_RULESET_FILE
+	rm "$TMP_RULESET_FILE"
 }
