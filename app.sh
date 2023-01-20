@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.5 (April, 26th 2022)
+Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
+Version 1.0.6 (January, 20th 2023)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -320,7 +320,10 @@ func_CMD_FULL_RELOAD() {
 	fi
 	
 	# Append additional rules
-	cat "$ADDITIONAL_RULES_FILE" >> "$TMP_RULESET_FILE"
+	if [ -f "$ADDITIONAL_RULES_FILE" ]
+	then
+		cat "$ADDITIONAL_RULES_FILE" >> "$TMP_RULESET_FILE"
+	fi
 	
 	# We redirect this to STDERR instead of STDOUT just to make
 	# sure that one does not accidentally leaves that option
