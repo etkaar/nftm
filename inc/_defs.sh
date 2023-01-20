@@ -1,6 +1,6 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
+Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -261,7 +261,9 @@ func_RESTORE_IFS() {
 # Simple read in of a file, but comments are removed
 func_READ_CONFIG_FILE() {
 	CONFIG_FILE_PATH="$1"
-	CONTENT="$(cat "$CONFIG_FILE_PATH" | egrep -v "^\s*(#|$)")"
 	
-	printf '%s\n' "$CONTENT"
+	if [ -f "$CONFIG_FILE_PATH" ]
+	then
+		printf '%s\n' "$(cat "$CONFIG_FILE_PATH" | egrep -v "^\s*(#|$)")"
+	fi
 }
