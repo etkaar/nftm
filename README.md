@@ -147,15 +147,18 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 Create a startup file and allow execution:
 
 ```shell
-touch /etc/network/if-pre-up.d/firewall
-chmod 0755 /etc/network/if-pre-up.d/firewall
+touch /etc/network/if-up.d/nftm
+chmod 0755 /etc/network/if-up.d/nftm
 ```
 
 This startup file needs following content:
 
 ```shell
 #!/bin/sh
-/etc/firewall/app.sh init
+if [ ! "$IFACE" = "lo" ]
+then
+	/etc/firewall/app.sh init
+fi
 ```
 
 Finally, you need a crontab to make sure DynDNS records are periodically updated, the default is every three (3) minutes.
