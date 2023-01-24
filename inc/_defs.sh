@@ -28,11 +28,26 @@ OR OTHER DEALINGS IN THE SOFTWARE.
 		if required and where suitable, we make use of a subshell.
 """
 
-# If colors are enabled
-func_COLORS_ENABLED() {
-	# 0 in this context means true (and not false),
-	# because it is an exit code – not a boolean.
+# Find out if we are being executed from terminal
+func_IS_IN_TERMINAL() {
+	if [ "$(tty)" = "not a tty" ]
+	then
+		return 1
+	fi
+	
 	return 0
+}
+
+# If colors are available
+func_COLORS_AVAILABLE() {
+	if func_IS_IN_TERMINAL
+	then
+		# 0 in this context means true (and not false),
+		# because it is an exit code – not a boolean.
+		return 0
+	fi
+		
+	return 1
 }
 
 # Truncate file
@@ -53,7 +68,7 @@ func_STDERR() {
 
 # Debug
 func_PRINT_DEBUG() {
-	if func_COLORS_ENABLED
+	if func_COLORS_AVAILABLE
 	then
 		# Magenta
 		printf "\e[0;35m"
@@ -61,7 +76,7 @@ func_PRINT_DEBUG() {
 	
 	func_STDOUT "$@"
 	
-	if func_COLORS_ENABLED
+	if func_COLORS_AVAILABLE
 	then
 		printf "\e[m"
 	fi
@@ -69,7 +84,7 @@ func_PRINT_DEBUG() {
 
 # Warning
 func_PRINT_WARNING() {
-	if func_COLORS_ENABLED
+	if func_COLORS_AVAILABLE
 	then
 		# Yellow
 		>&2 printf "\e[0;33m"
@@ -77,7 +92,7 @@ func_PRINT_WARNING() {
 	
 	func_STDERR "$@"
 	
-	if func_COLORS_ENABLED
+	if func_COLORS_AVAILABLE
 	then
 		>&2 printf "\e[m"
 	fi
@@ -85,7 +100,7 @@ func_PRINT_WARNING() {
 
 # Error
 func_PRINT_ERROR() {
-	if func_COLORS_ENABLED
+	if func_COLORS_AVAILABLE
 	then
 		# Red
 		>&2 printf "\e[0;31m"
@@ -93,7 +108,7 @@ func_PRINT_ERROR() {
 	
 	func_STDERR "$@"
 	
-	if func_COLORS_ENABLED
+	if func_COLORS_AVAILABLE
 	then
 		>&2 printf "\e[m"
 	fi
@@ -267,3 +282,21 @@ func_READ_CONFIG_FILE() {
 		printf '%s\n' "$(cat "$CONFIG_FILE_PATH" | egrep -v "^\s*(#|$)")"
 	fi
 }
+
+# Validate and change permissions of path. Permissions
+# are given in octal mode.
+func_VALIDATE_PERMISSIONS() {
+	CHECKPATH="$1"
+	PERMISSIONS="$2"
+	
+	if [ ! "$(stat --format '%a' "$CHECKPATH")" = "$PERMISSIONS" ]
+	then
+		if chmod "$PERMISSIONS" "$CHECKPATH"
+		then
+			return 1
+		fi
+	fi
+	
+	return 0
+}
+
