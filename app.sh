@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.6 (January, 20th 2023)
+Version 1.0.7 (January, 24th 2023)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -75,8 +75,15 @@ CRONTAB_COMMAND="$ABSPATH/app.sh cron"
 CRONTAB_LINE="*/$CRONTAB_INTERVAL_MINUTES * * * * $CRONTAB_COMMAND"
 
 # Firewall startup script
-STARTUP_SCRIPT_PATH="/etc/network/if-pre-up.d/firewall"						
-STARTUP_SCRIPT_CONTENT="$(printf '%s\n' "#!/bin/sh" "$ABSPATH/app.sh init")"
+STARTUP_SCRIPT_PATH="/etc/network/if-up.d/nftm"
+STARTUP_SCRIPT_CONTENT="$(cat << EOF
+#!/bin/sh
+if [ ! "\$IFACE" = "lo" ]
+then
+	$ABSPATH/app.sh init
+fi
+EOF
+)"
 
 # Command
 CMD="$1"
@@ -151,33 +158,61 @@ func_UPDATE_PERMISSIONS() {
 	# dirs: all
 	for CHECKPATH in "$CONF_PATH" "$INC_PATH" "$PRESETS_PATH" "$AVAILABLE_PRESETS_PATH" "$ENABLED_PRESETS_PATH"
 	do
-		chmod --changes 0700 "$CHECKPATH"
+		PERMISSIONS=700
+		if ! func_VALIDATE_PERMISSIONS "$CHECKPATH" "$PERMISSIONS"
+		then
+			printf '%s\n' "Permissions for $CHECKPATH changed to:"
+			printf '%s\n' "  $PERMISSIONS"
+		fi
 	done
 
 	# files: executable
-	chmod --changes 0700 "$ABSPATH/presets.sh"
+	PERMISSIONS=700
+	FILE="$ABSPATH/presets.sh"
+	if ! func_VALIDATE_PERMISSIONS "$FILE" "$PERMISSIONS"
+	then
+		printf '%s\n' "Permissions for $FILE changed to:"
+		printf '%s\n' "  $PERMISSIONS"
+	fi
 
 	# files: scripts
 	for FILE in $(ls "$INC_PATH"/*)
 	do
-		chmod --changes 0500 "$FILE"
+		PERMISSIONS=500
+		if ! func_VALIDATE_PERMISSIONS "$FILE" "$PERMISSIONS"
+		then
+			printf '%s\n' "Permissions for $FILE changed to:"
+			printf '%s\n' "  $PERMISSIONS"
+		fi
 	done
 
 	# files: configuration files
 	for FILE in $(ls "$CONF_PATH"/*.conf)
 	do
-		chmod --changes 0600 "$FILE"
+		PERMISSIONS=600
+		if ! func_VALIDATE_PERMISSIONS "$FILE" "$PERMISSIONS"
+		then
+			printf '%s\n' "Permissions for $FILE changed to:"
+			printf '%s\n' "  $PERMISSIONS"
+		fi
 	done
 
 	# files: presets
 	for FILE in $(ls "$AVAILABLE_PRESETS_PATH"/*)
 	do
-		chmod --changes 0600 "$FILE"
+		PERMISSIONS=600
+		if ! func_VALIDATE_PERMISSIONS "$FILE" "$PERMISSIONS"
+		then
+			printf '%s\n' "Permissions for $FILE changed to:"
+			printf '%s\n' "  $PERMISSIONS"
+		fi
 	done
 }
 
-# Check certain things and show
-# warn messages if applicable
+# Check certain things and show warn messages if applicable
+#
+# NOTE: Do NOT use this for any critical stuff, as warnings
+# may be suppressed for legitime reasons.
 func_SHOW_WARNINGS() {
 	# Check if crontab exists
 	if ! func_USER_CRONTAB_EXISTS "$CRONTAB_LINE"
@@ -186,11 +221,19 @@ func_SHOW_WARNINGS() {
 		printf '%s\n' "  ${0} setup-crontab"
 	fi
 
-	# Check if firewall startup script exists
-	if [ ! -f "$STARTUP_SCRIPT_PATH" ]
+	# Check if the old firewall startup script still exists
+	# (Since 1.0.7, 24th Jan 2023)
+	if [ -f "/etc/network/if-pre-up.d/firewall" ]
 	then
-		printf '%s\n' "WARNING: No startup script found. Run following command to setup it automatically:"
-		printf '%s\n' "  ${0} setup-startupscript"
+		printf '%s\n' "WARNING: Startup script has changed and moved. You should delete and re-create it:"
+		printf '%s\n' "  rm /etc/network/if-pre-up.d/firewall && ${0} setup-startupscript"
+	else
+		# Check if firewall startup script exists
+		if [ ! -f "$STARTUP_SCRIPT_PATH" ]
+		then
+			printf '%s\n' "WARNING: No startup script found. Run following command to setup it automatically:"
+			printf '%s\n' "  ${0} setup-startupscript"
+		fi
 	fi
 }
 
@@ -212,7 +255,7 @@ fi
 # Warn of missing crontab or startup script
 if [ ! "$OPT_NO_WARNINGS" = 1 ]
 then
-	if [ ! "$CMD" = "" ] && [ ! "$CMD" = "setup-crontab" ] && [ ! "$CMD" = "setup-startupscript" ] && [ ! "$CMD" = "update-permissions" ]
+	if [ ! "$CMD" = "" ] && [ ! "$CMD" = "init" ] && [ ! "$CMD" = "cron" ] && [ ! "$CMD" = "setup-crontab" ] && [ ! "$CMD" = "setup-startupscript" ] && [ ! "$CMD" = "update-permissions" ]
 	then
 		WARNINGS="$(func_SHOW_WARNINGS)"
 		
