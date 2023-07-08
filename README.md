@@ -32,9 +32,11 @@ rm main.tar.gz
 The configuration files end with `.sample` as a safety precaution. Remove that file extension to make the configuration files usable:
 
 ```shell
-mv /etc/firewall/additional_rules.txt.sample /etc/firewall/additional_rules.txt
-mv /etc/firewall/blacklist.conf.sample /etc/firewall/blacklist.conf
-mv /etc/firewall/whitelist.conf.sample /etc/firewall/whitelist.conf
+cd /etc/firewall/conf
+
+mv additional_rules.txt.sample additional_rules.txt
+mv blacklist.conf.sample blacklist.conf
+mv whitelist.conf.sample whitelist.conf
 ```
 
 After that, let the script automatically validate the file permissions:
