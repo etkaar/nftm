@@ -2,6 +2,8 @@
 
 Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables) based firewall with periodically and atomically updated whitelists and blacklists. Written in DASH ([Debian Almquist Shell](https://wiki.archlinux.org/title/Dash)) to offer POSIX compliance.
 
+⛔️ **Do not automatically update this script. This could result in you being locked out of your system.**
+
 ## 1.0 Introduction
 
 This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster, 11 Bullseye¹ and 12 Bookworm.
@@ -41,8 +43,6 @@ After that, let the script automatically validate the file permissions:
 chmod 0700 /etc/firewall/app.sh
 /etc/firewall/app.sh update-permissions
 ```
-
-⛔️ Do **not** automatically update this script. In case you need to update it, make sure that it won't break your system.
 
 ---
 
