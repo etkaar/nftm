@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.7 (January, 24th 2023)
+Version 1.0.8 (July, 8th 2023)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -187,7 +187,7 @@ func_UPDATE_PERMISSIONS() {
 	done
 
 	# files: configuration files
-	for FILE in $(ls "$CONF_PATH"/*.conf)
+	for FILE in $(find "$CONF_PATH" -maxdepth 1 -type f)
 	do
 		PERMISSIONS=600
 		if ! func_VALIDATE_PERMISSIONS "$FILE" "$PERMISSIONS"
