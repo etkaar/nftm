@@ -4,7 +4,7 @@ Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables
 
 ## 1.0 Introduction
 
-This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster and 11 Bullseye¹.
+This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster, 11 Bullseye¹ and 12 Bookworm.
 
 In the default configuration, the firewall will **drop any incoming traffic** which is not either whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` *or* the `conf/additional_rules.txt`.
 
@@ -15,42 +15,7 @@ Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263
 
 ---
 
-## 2.0 Compiling
-
-nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following commands (tested on Debian 11 Bullseye):
-
-```shell
-apt install git autoconf autogen libtool make pkg-config
-apt install bison flex asciidoc libgmp-dev libedit-dev python3-distutils
-
-git clone git://git.netfilter.org/libmnl
-cd libmnl
-sh autogen.sh
-./configure
-make
-make install
-
-git clone git://git.netfilter.org/libnftnl
-cd libnftnl
-sh autogen.sh
-./configure
-make
-make install
-
-git clone git://git.netfilter.org/nftables
-cd nftables
-sh autogen.sh
-./configure
-make
-make install
-
-reboot
-nft --version
-```
-
----
-
-## 3.0 How to Use
+## 2.0 How to Use
 
 In the following examples, we will use `/etc/firewall` as script path. Thus, login with `root` permissions, manually download the code and move its content there:
 
@@ -73,7 +38,7 @@ chmod 0700 /etc/firewall/app.sh
 
 ---
 
-### 3.1 Presets and Whitelist
+### 2.1 Presets and Whitelist
 
 You need to enable at least **one default** preset. At this time, this will be either `default ipv4-only` or `default ipv4-and-ipv6`:
 
@@ -126,8 +91,8 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 
 ---
 
-### 3.2 Startup Script and Cronjob
-#### 3.2.1 Automatically
+### 2.2 Startup Script and Cronjob
+#### 2.2.1 Automatically
 
 If you are using Debian, you can let the script automatically setup both the crontab and the startup script:
 
@@ -142,7 +107,7 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 /etc/firewall/app.sh [...] --no-warnings
 ```
 
-#### 3.2.2 Manually
+#### 2.2.2 Manually
 
 Create a startup file and allow execution:
 
@@ -177,7 +142,7 @@ You can also use following command:
 
 ---
 
-### 3.3 Logging
+### 2.3 Logging
 
 For debugging purposes, dropped packages may be logged.
 
@@ -194,4 +159,37 @@ You should disable that once all runs fine by commenting out the line in `conf/a
 #   /var/log/syslog
 #
 #add rule inet filter default_input log prefix "nft dropped: "
+```
+
+## 3.0 Manual Compiling
+
+nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following commands (tested on Debian 11 Bullseye):
+
+```shell
+apt install git autoconf autogen libtool make pkg-config
+apt install bison flex asciidoc libgmp-dev libedit-dev python3-distutils
+
+git clone git://git.netfilter.org/libmnl
+cd libmnl
+sh autogen.sh
+./configure
+make
+make install
+
+git clone git://git.netfilter.org/libnftnl
+cd libnftnl
+sh autogen.sh
+./configure
+make
+make install
+
+git clone git://git.netfilter.org/nftables
+cd nftables
+sh autogen.sh
+./configure
+make
+make install
+
+reboot
+nft --version
 ```
