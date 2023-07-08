@@ -19,6 +19,8 @@ Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263
 
 ## 2.0 Installation
 
+### 2.1 First Steps
+
 In the following examples, we will use `/etc/firewall` as script path. Thus, login with `root` permissions, manually download the code and move its content there:
 
 ```shell
@@ -48,8 +50,8 @@ chmod 0700 /etc/firewall/app.sh
 
 ---
 
-## 3.0 Setup Startup Script and Cronjob
-### 3.1 Automatically
+### 2.2 Setup Startup Script and Cronjob
+#### 2.2.1 Automatically
 
 If you are using Debian, you can let the script automatically setup both the crontab and the startup script:
 
@@ -64,7 +66,7 @@ The script will warn you, if the crontab or startup script is missing. To suppre
 /etc/firewall/app.sh [...] --no-warnings
 ```
 
-### 3.2 Manually
+#### 2.2.2 Manually
 
 Create a startup file and allow execution:
 
@@ -99,7 +101,7 @@ You can also use following command:
 
 ---
 
-## 4.0 Presets and Whitelist
+### 2.3 Presets and Whitelist
 
 You need to enable at least **one default** preset. At this time, this will be either `default ipv4-only` or `default ipv4-and-ipv6`:
 
@@ -152,7 +154,7 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 
 ---
 
-## 5.0 Logging
+### 3.0 Logging
 
 For debugging purposes, dropped packages may be logged.
 
@@ -171,7 +173,7 @@ You should disable that once all runs fine by commenting out the line in `conf/a
 #add rule inet filter default_input log prefix "nft dropped: "
 ```
 
-## 6.0 Manual Compiling
+### 4.0 Manual Compiling
 
 nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following commands (tested on Debian 11 Bullseye):
 
