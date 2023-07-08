@@ -15,7 +15,7 @@ Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263
 
 ---
 
-## 2.0 How to Use
+## 2.0 Installation
 
 In the following examples, we will use `/etc/firewall` as script path. Thus, login with `root` permissions, manually download the code and move its content there:
 
@@ -25,6 +25,14 @@ cd /etc/firewall
 wget https://github.com/etkaar/nftm/archive/refs/heads/main.tar.gz
 tar -xzf main.tar.gz --strip-components=1
 rm main.tar.gz
+```
+
+The configuration files end with `.sample` as a safety precaution. Remove that file extension to make the configuration files usable:
+
+```shell
+mv /etc/firewall/additional_rules.txt.sample /etc/firewall/additional_rules.txt
+mv /etc/firewall/blacklist.conf.sample /etc/firewall/blacklist.conf
+mv /etc/firewall/whitelist.conf.sample /etc/firewall/whitelist.conf
 ```
 
 After that, let the script automatically validate the file permissions:
