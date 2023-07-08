@@ -2,7 +2,7 @@
 
 Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables) based firewall with periodically and atomically updated whitelists and blacklists. Written in DASH ([Debian Almquist Shell](https://wiki.archlinux.org/title/Dash)) to offer POSIX compliance.
 
-⛔️ **Do not automatically update this script. This could result in you being locked out of your system.**
+⚠️ **Do not automatically update this script. This could result in you being locked out of your system.**
 
 ## 1.0 Introduction
 
@@ -10,10 +10,8 @@ This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Bus
 
 In the default configuration, the firewall will **drop any incoming traffic** which is not either whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` *or* the `conf/additional_rules.txt`.
 
----
-
-¹ ~~**Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).~~<br/>
-Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263efd7cb605e2f7af72717a2a951999217) in [5.10.103-1](https://metadata.ftp-master.debian.org/changelogs//main/l/linux/linux_5.10.106-1_changelog) on 7th March 2022.
+<sub>¹ ~~**Warning:** Not compatible with nftables 0.9.8–1.0.1 (Debian 11 Bullseye) due to a [critical regression bug in nftables](https://marc.info/?l=netfilter-devel&m=164132615421568&w=2).~~<br/>
+Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263efd7cb605e2f7af72717a2a951999217) in [5.10.103-1](https://metadata.ftp-master.debian.org/changelogs//main/l/linux/linux_5.10.106-1_changelog) on 7th March 2022.</sub>
 
 ---
 
@@ -173,7 +171,9 @@ You should disable that once all runs fine by commenting out the line in `conf/a
 #add rule inet filter default_input log prefix "nft dropped: "
 ```
 
-### 4.0 Manual Compiling
+---
+
+### 4.0 Manual Compiling of `nftables`
 
 nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following commands (tested on Debian 11 Bullseye):
 
