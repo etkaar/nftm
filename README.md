@@ -48,7 +48,58 @@ chmod 0700 /etc/firewall/app.sh
 
 ---
 
-### 2.1 Presets and Whitelist
+## 3.0 Setup Startup Script and Cronjob
+### 3.1 Automatically
+
+If you are using Debian, you can let the script automatically setup both the crontab and the startup script:
+
+```shell
+/etc/firewall/app.sh setup-crontab
+/etc/firewall/app.sh setup-startupscript
+```
+
+The script will warn you, if the crontab or startup script is missing. To suppress that you can just append `--no-warnings`:
+
+```shell
+/etc/firewall/app.sh [...] --no-warnings
+```
+
+### 3.2 Manually
+
+Create a startup file and allow execution:
+
+```shell
+touch /etc/network/if-up.d/nftm
+chmod 0755 /etc/network/if-up.d/nftm
+```
+
+This startup file needs following content:
+
+```shell
+#!/bin/sh
+if [ ! "$IFACE" = "lo" ]
+then
+	/etc/firewall/app.sh init
+fi
+```
+
+Finally, you need a crontab to make sure DynDNS records are periodically updated, the default is every three (3) minutes.
+
+Run `crontab -e` as `root` user and add following line:
+
+```shell
+*/3 * * * * /etc/firewall/app.sh cron
+```
+
+You can also use following command:
+
+```shell
+(crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
+```
+
+---
+
+## 4.0 Presets and Whitelist
 
 You need to enable at least **one default** preset. At this time, this will be either `default ipv4-only` or `default ipv4-and-ipv6`:
 
@@ -101,58 +152,7 @@ Now, try to open a *seperate* SSH session to your server. If that works, the IP 
 
 ---
 
-### 2.2 Startup Script and Cronjob
-#### 2.2.1 Automatically
-
-If you are using Debian, you can let the script automatically setup both the crontab and the startup script:
-
-```shell
-/etc/firewall/app.sh setup-crontab
-/etc/firewall/app.sh setup-startupscript
-```
-
-The script will warn you, if the crontab or startup script is missing. To suppress that you can just append `--no-warnings`:
-
-```shell
-/etc/firewall/app.sh [...] --no-warnings
-```
-
-#### 2.2.2 Manually
-
-Create a startup file and allow execution:
-
-```shell
-touch /etc/network/if-up.d/nftm
-chmod 0755 /etc/network/if-up.d/nftm
-```
-
-This startup file needs following content:
-
-```shell
-#!/bin/sh
-if [ ! "$IFACE" = "lo" ]
-then
-	/etc/firewall/app.sh init
-fi
-```
-
-Finally, you need a crontab to make sure DynDNS records are periodically updated, the default is every three (3) minutes.
-
-Run `crontab -e` as `root` user and add following line:
-
-```shell
-*/3 * * * * /etc/firewall/app.sh cron
-```
-
-You can also use following command:
-
-```shell
-(crontab -l 2>/dev/null; echo "*/3 * * * * /etc/firewall/app.sh cron") | crontab -
-```
-
----
-
-### 2.3 Logging
+## 5.0 Logging
 
 For debugging purposes, dropped packages may be logged.
 
@@ -171,7 +171,7 @@ You should disable that once all runs fine by commenting out the line in `conf/a
 #add rule inet filter default_input log prefix "nft dropped: "
 ```
 
-## 3.0 Manual Compiling
+## 6.0 Manual Compiling
 
 nftables is the default firewall in Debian 11 Bullseye and already used as backend in Debian 10 Buster, so you don't need to compile it. Nonetheless, in case you want to compile it to the newest available version, you can use following commands (tested on Debian 11 Bullseye):
 
