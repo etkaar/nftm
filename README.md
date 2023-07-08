@@ -20,8 +20,7 @@ Issue fixed via [kernel patch](https://github.com/torvalds/linux/commit/23c54263
 In the following examples, we will use `/etc/firewall` as script path. Thus, login with `root` permissions, manually download the code and move its content there:
 
 ```shell
-mkdir /etc/firewall
-cd /etc/firewall
+mkdir /etc/firewall && cd /etc/firewall
 wget https://github.com/etkaar/nftm/archive/refs/heads/main.tar.gz
 tar -xzf main.tar.gz --strip-components=1
 rm main.tar.gz
