@@ -1,0 +1,2 @@
+# Allow access to insecure POP3 server or POP3 with STARTTLS
+add rule inet filter default_input tcp dport 110 counter accept comment "POP3 (Insecure or STARTTLS)"
