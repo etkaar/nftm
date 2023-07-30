@@ -1,0 +1,2 @@
+# Allow access to secured POP3 server
+add rule inet filter default_input tcp dport 995 counter accept comment "POP3S (TLS)"
