@@ -9,4 +9,8 @@
 #   /var/log/kern.log
 #   /var/log/syslog
 #
+# From Debian 12 Bookworm on this is handled by systemd, so
+# use following command to get a live-view of dropped packets:
+#   journalctl -f
+#
 add rule inet filter default_input log prefix "nft dropped: "
