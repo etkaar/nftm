@@ -6,7 +6,7 @@ Lightweight script to manage a [nftables](https://en.wikipedia.org/wiki/Nftables
 
 ## 1.0 Introduction
 
-This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster, 11 Bullseye¹ and 12 Bookworm.
+This script is compatible with nftables >= 0.9.0 and was tested on Debian 10 Buster, 11 Bullseye¹, 12 Bookworm and 13 Trixie.
 
 In the default configuration, the firewall will **drop any incoming traffic** which is not either whitelisted using the `conf/whitelist.conf` file, the presets in `conf/presets` *or* the `conf/additional_rules.txt`.
 
