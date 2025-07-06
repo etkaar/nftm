@@ -1,6 +1,6 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-22 etkaar <https://github.com/etkaar/nftm>
+Copyright (c) 2020-25 etkaar <https://github.com/etkaar/nftm>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -298,15 +298,15 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		# Get IPv4/6 address from hostname *or* returns the IP address if actually no hostname was given
 		if [ "$IP_VERSION" = 4 ]
 		then
-			IP_ADDR="$(func_GET_IPV4 "$HOSTNAME_SUBNET_OR_ADDRESS" "$RETURN_CIDR_NOTATION")"
+			IP_ADDRS="$(func_GET_IPV4 "$HOSTNAME_SUBNET_OR_ADDRESS" "$RETURN_CIDR_NOTATION")"
 		elif [ "$IP_VERSION" = 6 ]
 		then
-			IP_ADDR="$(func_GET_IPV6 "$HOSTNAME_SUBNET_OR_ADDRESS" "$RETURN_CIDR_NOTATION")"
+			IP_ADDRS="$(func_GET_IPV6 "$HOSTNAME_SUBNET_OR_ADDRESS" "$RETURN_CIDR_NOTATION")"
 		fi
 		
 		# Validate that the lookup was successful (here we need to request both the IPv4 and IPv6 address, so it is normal
 		# that it will fail in cases the hostname only has an A (IPv4), but not an AAAA (IPv6) record or viceversa)
-		if [ "$IP_ADDR" = "" ]
+		if [ "$IP_ADDRS" = "" ]
 		then
 			if [ ! "$OPT_NO_WARNINGS" = 1 ]
 			then
@@ -317,19 +317,22 @@ func_CREATE_SET_ELEMENTS_FROM_FILE() {
 		fi
 		
 		# Add to elements set
-		if [ "$TYPE" = "whitelist" ]
-		then
-			# Allow multiple ports
-			PORT_LIST="$(printf '%s' "$PORTS" | tr "," "\n")"
+		for IP_ADDR in $IP_ADDRS
+		do
+			if [ "$TYPE" = "whitelist" ]
+			then
+				# Allow multiple ports
+				PORT_LIST="$(printf '%s' "$PORTS" | tr "," "\n")"
 
-			for PORT in $PORT_LIST
-			do
-				printf '%s\n' "			$PORT . $IP_ADDR,"
-			done
-		elif [ "$TYPE" = "blacklist" ]
-		then
-			printf '%s\n' "			$IP_ADDR,"
-		fi
+				for PORT in $PORT_LIST
+				do
+					printf '%s\n' "			$PORT . $IP_ADDR,"
+				done
+			elif [ "$TYPE" = "blacklist" ]
+			then
+				printf '%s\n' "			$IP_ADDR,"
+			fi
+		done
 	done
 	unset IFS
 	
