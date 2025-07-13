@@ -101,6 +101,12 @@ func_GET_IPV4() {
 	
 	DNS_LOOKUP="$(getent ahostsv4 "$HOSTNAME_SUBNET_OR_ADDRESS" | grep ' STREAM' | awk '{print $1}')"
 	
+	# Ignore 0.0.0.0
+	if [ "$DNS_LOOKUP" = "0.0.0.0" ]
+	then
+		DNS_LOOKUP=""
+	fi
+	
 	if [ ! "$DNS_LOOKUP" = "" ]
 	then
 		if [ "$RETURN_CIDR_NOTATION" = 1 ]
