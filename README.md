@@ -125,17 +125,26 @@ After that, you may want to edit the `conf/whitelist.conf` to add your IP addres
 ```shell
 # <dynamic hostname|address|subnet(*)>                      <enabled>           <protocol>              <port(s)>
 
-# IPv4 or IPv6 addresses:
-# 127.0.0.1                                                  1                   tcp                     22,587
+# Single IPv4 or IPv6 addresses:
+# 192.168.1.5                                                1                   tcp                     22,587
 # 2001:0DB8:7654:0010:FEDC:0000:0000:3210                    1                   udp                     27015
+
+# (*) To use subnets, you need nftables >= 0.9.4:
+# 192.168.0.0/16                                             1                   tcp                     22
 
 # You can use hostnames which are associated
 # with an IPv4 and/or IPv6 address:
 #
 # client-dyndns.example.com                                  1                   tcp                     22,587
 
-# (*) To use subnets, you need nftables >= 0.9.4:
-# 127.0.0.1/8                                                1                   tcp                     22
+# Subnets commonly used for private networks:
+#
+# - 10.0.0.0/8
+# - 172.16.0.0/12
+# - 192.168.0.0/16
+#
+# See also:
+#    https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
 ```
 
 Once you are **sure** all is correct, do a full reload of the firewall but **do not end your SSH session** yet:
