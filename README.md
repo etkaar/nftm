@@ -170,12 +170,9 @@ You should disable that once all runs fine by commenting out the line in `conf/a
 ```shell
 ...
 
-#
-# Enables logging of dropped packages for debugging purposes
-#
-# You will find the logs in:
-#   /var/log/kern.log
-#   /var/log/syslog
+# From Debian 12 Bookworm on this is handled by systemd, so
+# use following command to get a live-view of dropped packets:
+#   journalctl -f
 #
 #add rule inet filter default_input log prefix "nft dropped: "
 ```
