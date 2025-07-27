@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.8 (July, 8th 2023)
+Version 1.0.9 (July, 28th 2025)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
