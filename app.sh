@@ -65,7 +65,7 @@ NFTABLES_REQUIRED_MIN_VERSION_STRING="0.9.0"
 NFTABLES_REQUIRED_MIN_VERSION_INTEGER="$(func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_REQUIRED_MIN_VERSION_STRING")"
 
 # Currently installed nftables version
-NFTABLES_INSTALLED_VERSION_STRING="$(printf '%s' "$(nft --version)" | awk '{print $2}' | tr -d 'v')"
+NFTABLES_INSTALLED_VERSION_STRING="$(printf '%s' "$(nft --version 2>/dev/null)" | awk '{print $2}' | tr -d 'v')"
 NFTABLES_INSTALLED_VERSION_INTEGER="$(func_VERSION_STRING_TO_INTEGER 3 "$NFTABLES_INSTALLED_VERSION_STRING")"
 
 # Crontab for whitelists and blacklists update
