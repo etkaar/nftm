@@ -1,6 +1,6 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
+Copyright (c) 2020-25 etkaar <https://github.com/etkaar/nftm>
 Version 1.0.9 (July, 28th 2025)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
