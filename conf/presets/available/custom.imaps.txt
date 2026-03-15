@@ -1,0 +1,2 @@
+# Allow access to secured IMAP server
+add rule inet filter default_input tcp dport 993 counter accept comment "IMAP (TLS)"

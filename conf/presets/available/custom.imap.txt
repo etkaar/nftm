@@ -1,0 +1,2 @@
+# Allow access to insecure IMAP server or IMAP with STARTTLS
+add rule inet filter default_input tcp dport 143 counter accept comment "IMAP (Insecure or STARTTLS)"
