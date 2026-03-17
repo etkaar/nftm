@@ -1,6 +1,6 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-23 etkaar <https://github.com/etkaar/nftm>
+Copyright (c) 2020-26 etkaar <https://github.com/etkaar/nftm>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -300,3 +300,16 @@ func_VALIDATE_PERMISSIONS() {
 	return 0
 }
 
+# Return list of missing packages
+func_GET_MISSING_PACKAGES_LIST() {
+	LIST="$1"
+
+	for PACKAGE_NAME in $LIST
+	do
+		# Not installed
+		if ! dpkg-query -s "$PACKAGE_NAME" >/dev/null 2>&1
+		then
+			printf '%s ' "$PACKAGE_NAME"
+		fi
+	done
+}
