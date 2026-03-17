@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
 Copyright (c) 2020-26 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.10 (March, 17th 2026)
+Version 1.0.11 (March, 17th 2026)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -238,7 +238,7 @@ func_SHOW_WARNINGS() {
 }
 
 # Make sure a supported version of nftables and other required packages are installed
-REQUIRED_PACKAGES="nftables ifupdown"
+REQUIRED_PACKAGES="nftables cron ifupdown"
 MISSING_PACKAGES="$(func_GET_MISSING_PACKAGES_LIST "$REQUIRED_PACKAGES")"
 
 if [ ! "$MISSING_PACKAGES" = "" ]
