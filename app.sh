@@ -1,7 +1,7 @@
 #!/bin/sh
 : '''
-Copyright (c) 2020-25 etkaar <https://github.com/etkaar/nftm>
-Version 1.0.9 (July, 28th 2025)
+Copyright (c) 2020-26 etkaar <https://github.com/etkaar/nftm>
+Version 1.0.10 (March, 17th 2026)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -237,10 +237,13 @@ func_SHOW_WARNINGS() {
 	fi
 }
 
-# Make sure supported version of nftables is installed
-if ! nft --version >/dev/null 2>&1
+# Make sure a supported version of nftables and other required packages are installed
+REQUIRED_PACKAGES="nftables ifupdown"
+MISSING_PACKAGES="$(func_GET_MISSING_PACKAGES_LIST "$REQUIRED_PACKAGES")"
+
+if [ ! "$MISSING_PACKAGES" = "" ]
 then
-	func_EXIT_ERROR 1 "ERROR: Package 'nftables' not installed."
+	func_EXIT_ERROR 1 "ERROR: Following packages need to be installed:" "  $MISSING_PACKAGES"
 fi
 
 if [ ! "$CMD" = "" ] && [ "$OPT_NO_VERSION_CHECK" = 0 ]
