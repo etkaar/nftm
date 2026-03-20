@@ -1,0 +1,2 @@
+# Allow SMTP Submission via TLS
+add rule inet filter default_input tcp dport 465 counter accept comment "SMTP: Submission (TLS); outgoing emails (MSA)"

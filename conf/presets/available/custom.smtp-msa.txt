@@ -1,0 +1,2 @@
+# Allow SMTP Submission via STARTTLS
+add rule inet filter default_input tcp dport 587 counter accept comment "SMTP: Submission (StartTLS); outgoing emails (MSA)"
