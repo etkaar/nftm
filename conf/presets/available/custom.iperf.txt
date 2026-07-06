@@ -1,0 +1,3 @@
+# iperf3 diagnostic
+add rule inet filter default_input tcp dport 5201 counter accept comment "iperf3 (TCP)"
+add rule inet filter default_input udp dport 5201 counter accept comment "iperf3 (UDP)"
